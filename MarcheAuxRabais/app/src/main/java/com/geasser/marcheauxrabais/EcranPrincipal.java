@@ -12,15 +12,10 @@ import android.widget.TextView;
 
 public class EcranPrincipal extends Activity implements SensorEventListener {
 
-
-
     private TextView textView;
-
     private SensorManager mSensorManager;
-
     private Sensor mStepCounterSensor;
 
-    private Sensor mStepDetectorSensor;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,30 +26,26 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
                 getSystemService(Context.SENSOR_SERVICE);
         mStepCounterSensor = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-        mStepDetectorSensor = mSensorManager
-                .getDefaultSensor(Sensor.TYPE_STEP_DETECTOR);
+
     }
+
+    // onResume est une fonction appellée quand l'activité est au sommet de la pile d'activité donc ne fonctionne pas en arrière-plan.
     protected void onResume() {
-
         super.onResume();
-
-        mSensorManager.registerListener(this, mStepCounterSensor,
-
-                SensorManager.SENSOR_DELAY_FASTEST);
-        mSensorManager.registerListener(this, mStepDetectorSensor,
-
-                SensorManager.SENSOR_DELAY_FASTEST);
-
+        mSensorManager.registerListener(this, mStepCounterSensor,SensorManager.SENSOR_DELAY_FASTEST);
     }
-
+    // Called when the activity is no longer visible to the user, because another activity has been resumed and is covering this one.
     protected void onStop() {
         super.onStop();
-        mSensorManager.unregisterListener(this, mStepCounterSensor);
-        mSensorManager.unregisterListener(this, mStepDetectorSensor);
     }
+    public void onDestroy(){
+        super.onDestroy();
+        mSensorManager.unregisterListener(this, mStepCounterSensor);
 
+    }
     public void onSensorChanged(SensorEvent event) {
         Sensor sensor = event.sensor;
+        // values[0]: Acceleration minus Gx on the x-axis , 1 --> y, 2--> z
         float[] values = event.values;
         int value = -1;
 
@@ -64,14 +55,11 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
 
         if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
             textView.setText("Step Counter Detected : " + value);
-        } else if (sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
-            // For test only. Only allowed value is 1.0 i.e. for step taken
-            textView.setText("Step Detector Detected : " + value);
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
+        // Obligatoire quand SensorEventListener est implémeté
     }
 }
