@@ -30,6 +30,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        bLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final String username = etUsername.getText().toString();
+                final String password = etPassword.getText().toString();
+            }
+        });
+
 
     }
 }
