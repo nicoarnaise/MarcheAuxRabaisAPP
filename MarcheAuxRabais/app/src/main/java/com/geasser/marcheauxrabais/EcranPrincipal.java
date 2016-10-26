@@ -20,7 +20,7 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ecran_principal);
-        textView = (TextView) findViewById(R.id.textview);
+        textView = (TextView) findViewById(R.id.textView);
 
         mSensorManager = (SensorManager)
                 getSystemService(Context.SENSOR_SERVICE);
