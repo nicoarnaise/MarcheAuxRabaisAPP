@@ -22,47 +22,6 @@
         android:layout_alignParentEnd="true"
         android:hint="Pseudo" />
 
-    <EditText
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:inputType="textPassword"
-        android:ems="10"
-        android:layout_below="@+id/etLoginUsername"
-        android:id="@+id/etPassword"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:hint="Mot de passe" />
-
-    <Button
-        android:text="Se connecter"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/etPassword"
-        android:layout_alignParentStart="true"
-        android:id="@+id/bLogin"
-        android:layout_alignParentEnd="true" />
-
-    <TextView
-        android:text="S'enregistrer ici"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/tvRegisterHere"
-        android:layout_below="@+id/bLogin"
-        android:layout_alignParentStart="true"
-        android:textAlignment="center"
-        android:layout_alignParentEnd="true" />
-
-    <ImageButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@mipmap/google2"
-        android:id="@+id/ibGoogle"
-        android:background="@mipmap/google2"
-        android:layout_marginEnd="70dp"
-        android:layout_marginTop="37dp"
-        android:layout_below="@+id/tvRegisterHere"
-        android:layout_alignParentEnd="true" />
-
     <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,5 +31,67 @@
         android:layout_alignTop="@+id/ibGoogle"
         android:layout_alignParentStart="true"
         android:layout_marginStart="60dp" />
+
+    <EditText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:ems="10"
+        android:id="@+id/etPasswordlogin"
+        android:layout_below="@+id/etLoginUsername"
+        android:layout_alignParentStart="true"
+        android:hint="Mot de passe"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Se connecter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/bLogin"
+        android:layout_below="@+id/etPasswordlogin"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="20dp"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="S'enregistrer ici"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvRegisterHere"
+        android:textAlignment="center"
+        android:layout_below="@+id/bLogin"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="25dp" />
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:srcCompat="@mipmap/google2"
+        android:id="@+id/ibGoogle"
+        android:background="@mipmap/google2"
+        android:layout_marginStart="20dp"
+        android:layout_below="@+id/tvRegisterHere"
+        android:layout_toEndOf="@+id/tvRegisterHere"
+        android:layout_marginTop="80dp" />
+
+
+    <com.facebook.login.widget.LoginButton
+        android:id="@+id/login_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginStart="14dp" />
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/ibFacebook"
+        android:layout_marginTop="35dp"
+        android:id="@+id/info"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentStart="true" />
+
 
 </RelativeLayout>

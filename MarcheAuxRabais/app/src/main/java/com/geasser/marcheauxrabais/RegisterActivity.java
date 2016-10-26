@@ -16,6 +16,7 @@ public class RegisterActivity extends AppCompatActivity {
 
         final EditText etUsername = (EditText) findViewById(R.id.etRegisterUserName);
         final EditText etPassword = (EditText) findViewById(R.id.etPassword);
+        final EditText etPasswordConfirm = (EditText) findViewById(R.id.etPasswordconfirm);
         final Button bRegister = (Button) findViewById(R.id.bRegister);
 
         bRegister.setOnClickListener(new View.OnClickListener() {
@@ -23,6 +24,8 @@ public class RegisterActivity extends AppCompatActivity {
             public void onClick(View v) {
                 final String username = etUsername.getText().toString();
                 final String password = etPassword.getText().toString();
+                final String passwordConfirm = etPasswordConfirm.getText().toString();
+
             }
         });
 
