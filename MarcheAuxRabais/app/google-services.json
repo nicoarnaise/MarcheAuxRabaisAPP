@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "840478742692",
+    "project_id": "marcheauxrabais"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:840478742692:android:522b734ccbc51f6d",
+        "android_client_info": {
+          "package_name": "com.geasser.marcheauxrabais"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "840478742692-3b76lpr47kp58bbsd81qkpsalls5b90p.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.geasser.marcheauxrabais",
+            "certificate_hash": "3E52A9A4FF76912E9B546040BEAC1F8CCEF05001"
+          }
+        },
+        {
+          "client_id": "840478742692-pa9p3k673ipft3gv610cem7lurg60u3f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCzLeAcZyTaYOhpD4jm7Tp3noT6SVM4QlM"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 1
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
