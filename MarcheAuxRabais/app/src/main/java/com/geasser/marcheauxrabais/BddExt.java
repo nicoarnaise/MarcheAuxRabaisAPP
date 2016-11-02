@@ -17,7 +17,7 @@ import java.util.Map;
  * Cette classe permet la connection et l'envoie d'une requette à la base de données externe de manière asynchrone.
  *
  * <U>use :</U>
- * 1/ AsyncTask<String, Void, String> task = new BddExt().execute(String requette); // pour envoyer la requette à la base
+ * 1/ AsyncTask<String, Void, String> task = new BddExt().execute(String requète); // pour envoyer la requette à la base
  * 2/ task.get() // pour récupérer le String de la réponse de la base.
  */
 
