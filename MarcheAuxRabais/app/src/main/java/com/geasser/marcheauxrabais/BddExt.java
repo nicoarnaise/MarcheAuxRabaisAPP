@@ -13,16 +13,32 @@ import java.util.Map;
 
 /**
  * Created by Nicolas & Vincent on 27/10/2016.
+ *
+ * Cette classe permet la connection et l'envoie d'une requette à la base de données externe de manière asynchrone.
+ *
+ * <U>use :</U>
+ * 1/ AsyncTask<String, Void, String> task = new BddExt().execute(String requette); // pour envoyer la requette à la base
+ * 2/ task.get() // pour récupérer le String de la réponse de la base.
  */
 
 public class BddExt extends AsyncTask<String, Void, String> {
 
+    /**
+     * Cette fonction est exécutée par la fonction new BddExt().execute(String requette)
+     * Elle se connecte à la base et récupère la réponse à la requette demandée.
+     * @param req
+     * @return String se la réponse à la requette
+     */
     @Override
     protected String doInBackground(String... req) {
         InputStream is = null;
+        OutputStream os = null;
         try {
+            // on se connecte à la page PHP qui fait le lien avec la base de donnée externe
             final HttpURLConnection conn = (HttpURLConnection) new URL("http://n.arnaise.free.fr/mar/request.php").openConnection();
+            // on indique qu'on va utiliser la méthode POST (méthode de passage de variables Web)
             conn.setRequestMethod("POST");
+            // on met en forme l'envoie de la requette pour qu'elle soit comprise par la page PHP
             Map<String,String> params = new LinkedHashMap<>();
             params.put("query",req[0]);
             StringBuilder postData = new StringBuilder();
@@ -34,13 +50,16 @@ public class BddExt extends AsyncTask<String, Void, String> {
             }
             byte[] postDataBytes = postData.toString().getBytes("UTF-8");
 
+            //on prévoit d'envoyer des données à la page et d'en recevoir
             conn.setDoInput(true);
             conn.setDoOutput(true);
 
-            // Starts the query
-            conn.getOutputStream().write(postDataBytes); // = conn.connect avec la methode POST
+            // on envoie ici la requette mise en forme à la page PHP
+            os = conn.getOutputStream();
+            os.write(postDataBytes);// = conn.connect (methode GET) mais avec la methode POST
+            // on récupère la réponse de la page qui correspond à la mise en forme JQuerry de la réponse de la base de donnée externe
             is = conn.getInputStream();
-            // Read the InputStream and save it in a string
+            // On la retourne pour pouvoir s'en servir dans l'application.
             return readIt(is);
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
@@ -55,8 +74,8 @@ public class BddExt extends AsyncTask<String, Void, String> {
             e.printStackTrace();
             return null;
         } finally {
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
+            // On s'assure que les flux d'entrées et sorties sont bien fermés après l'exécution,
+            // quelque soit le comportement de l'application
             if (is != null) {
                 try {
                     is.close();
@@ -64,9 +83,22 @@ public class BddExt extends AsyncTask<String, Void, String> {
                     e.printStackTrace();
                 }
             }
+            if (os != null) {
+                try {
+                    os.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
+    /**
+     * Cette fonction permet la mise en forme de la réponse, transformant le contenu du flux d'entrée en String
+     * @param is le flux d'entrée
+     * @return .toString du contenu dans le flux de sortie
+     * @throws IOException
+     */
     private static String readIt(InputStream is) throws IOException {
         BufferedReader r = new BufferedReader(new InputStreamReader(is));
         StringBuilder response = new StringBuilder();

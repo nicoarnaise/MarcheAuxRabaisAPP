@@ -32,10 +32,14 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         mStepCounterSensor = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
+        // la partie en commentaire ci dessous envoie une requette à la BDD externe et affiche le résultat de la requette, non formaté.
         /*try {
+            // On crée une AsyncTask car l'accès à un site internet ne peut se faire que de manière asynchrone sous Android
             AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM entreprises");
             Toast.makeText(this,"Connection ...",Toast.LENGTH_LONG).show();
+            // task.get() permet de récupérer la réponse de la base de donnée.
             String rep = task.get();
+            // après, on affiche simplement le texte retourné.
             textView.setText(rep);
             Toast.makeText(this,"Terminé",Toast.LENGTH_LONG).show();
         } catch (InterruptedException e) {
