@@ -2,6 +2,7 @@ package com.geasser.marcheauxrabais;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -9,6 +10,8 @@ import android.hardware.SensorManager;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -26,6 +29,40 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ecran_principal);
         textView = (TextView) findViewById(R.id.textView);
+        final Button bCarte = (Button) findViewById(R.id.btcarte);
+        final Button bChallenges = (Button) findViewById(R.id.btchallenges);
+        final Button bProfil = (Button) findViewById(R.id.btprofil);
+        final Button bRabais = (Button) findViewById(R.id.btrabais);
+
+
+        bCarte.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
+               // LoginActivity.this.startActivity(registerIntent);
+            }
+        });
+        bChallenges.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
+                // LoginActivity.this.startActivity(registerIntent);
+            }
+        });
+        bProfil.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
+                // LoginActivity.this.startActivity(registerIntent);
+            }
+        });
+        bRabais.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
+                // LoginActivity.this.startActivity(registerIntent);
+            }
+        });
 
         mSensorManager = (SensorManager)
                 getSystemService(Context.SENSOR_SERVICE);

@@ -17,4 +17,37 @@
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
         android:id="@+id/textView" />
+
+    <Button
+        android:text="Mon profil"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btprofil"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true" />
+
+    <Button
+        android:text="Ma Carte"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/btcarte"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Mes Rabais"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="39dp"
+        android:id="@+id/btrabais"
+        android:layout_below="@+id/btcarte"
+        android:layout_alignParentStart="true" />
+
+    <Button
+        android:text="Mes Challenges"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/btrabais"
+        android:layout_alignParentEnd="true"
+        android:id="@+id/btchallenges" />
 </RelativeLayout>
