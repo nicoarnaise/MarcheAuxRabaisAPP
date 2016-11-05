@@ -72,7 +72,7 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         mStepCounterSensor = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
-        // la partie en commentaire ci dessous envoie une requette à la BDD externe et affiche le résultat de la requette, non formaté.
+        // la partie en commentaire ci dessous envoie une requete à la BDD externe et affiche le résultat de la requete, non formaté.
         /*try {
             // On crée une AsyncTask car l'accès à un site internet ne peut se faire que de manière asynchrone sous Android
             AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM entreprises");
