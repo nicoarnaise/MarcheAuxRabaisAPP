@@ -38,10 +38,11 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         bCarte.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
-               // LoginActivity.this.startActivity(registerIntent);
+                Intent MapsIntent = new Intent(EcranPrincipal.this, MapsActivity.class);
+                EcranPrincipal.this.startActivity(MapsIntent);
             }
         });
+
         bChallenges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -49,13 +50,15 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
                 // LoginActivity.this.startActivity(registerIntent);
             }
         });
+
         bProfil.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
-                // LoginActivity.this.startActivity(registerIntent);
+                Intent profilIntent = new Intent(EcranPrincipal.this, ProfilActivity.class);
+                EcranPrincipal.this.startActivity(profilIntent);
             }
         });
+
         bRabais.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
