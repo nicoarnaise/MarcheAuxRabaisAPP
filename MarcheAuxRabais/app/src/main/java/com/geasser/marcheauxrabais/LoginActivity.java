@@ -1,6 +1,7 @@
 package com.geasser.marcheauxrabais;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,7 +26,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
+
 import static android.R.attr.data;
+import static com.geasser.marcheauxrabais.R.id.textView;
+import static com.google.android.gms.common.internal.safeparcel.SafeParcelable.NULL;
 
 public class LoginActivity extends AppCompatActivity implements  GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener{
@@ -69,8 +76,13 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                 final String username = etUsername.getText().toString();
                 final String password = etPassword.getText().toString();
 
-                if (username.compareTo("lol")==0){
-                    Toast.makeText(LoginActivity.this, "Mere", Toast.LENGTH_SHORT).show();
+
+                if(testProfil(username,password)){
+                    Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
+                    LoginActivity.this.startActivity(registerIntent);
+                }
+                else{
+                    Toast.makeText(LoginActivity.this,"Pseudo ou mot de passe erroné",Toast.LENGTH_LONG).show();
                 }
 
             }
@@ -87,8 +99,16 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                                 "Auth Token: "
                                 + loginResult.getAccessToken().getToken()
                 );
-                Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
-                LoginActivity.this.startActivity(profil);
+
+                if (testProfil(loginResult.getAccessToken().getUserId(),"null")){
+                    Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
+                    LoginActivity.this.startActivity(profil);
+                }else{
+                    //info.setText(
+                           // "error"
+                   // );
+                }
+
             }
 
             @Override
@@ -123,6 +143,16 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
+            if (testProfil(result.getSignInAccount().getId().toString(),"null")){
+                Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
+                LoginActivity.this.startActivity(profil);
+            }else{
+                //info.setText(
+                // "error"
+                // );
+            }
+            Toast.makeText(LoginActivity.this,result.getSignInAccount().getId().toString(),Toast.LENGTH_LONG).show();
+
         }
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
@@ -173,6 +203,37 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             //findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
         }
+    }
+
+    private boolean testProfil(String username, String password){
+        AsyncTask<String, Void, String> task = new BddExt().execute("SELECT UserName, MotDePasse FROM profil");
+        try {
+            // task.get() permet de récupérer la réponse de la base de donnée.
+            String rep = task.get();
+            ArrayList<HashMap<String,String>> tab = BddExt.formate(rep);
+            // après, on affiche simplement le texte retourné.
+            int i =0;
+            while (i<tab.size()){
+                info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
+                if(tab.get(i).get("UserName").toString().compareTo(username)==0){
+                    if(tab.get(i).get("MotDePasse").toString().compareTo(password)==0){
+
+                        return true;
+                    }else {
+
+                        return false;
+                    }
+                }
+                i++;
+            }
+
+
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
 }

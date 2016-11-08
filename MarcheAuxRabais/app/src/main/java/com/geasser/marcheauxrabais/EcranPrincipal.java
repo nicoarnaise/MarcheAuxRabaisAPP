@@ -131,4 +131,10 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
         // Obligatoire quand SensorEventListener est implémeté
     }
+
+    // Empeche le retour arrière
+    @Override
+    public void onBackPressed(){
+
+    }
 }
