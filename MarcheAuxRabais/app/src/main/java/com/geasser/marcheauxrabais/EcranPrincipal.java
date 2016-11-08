@@ -16,6 +16,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 public class EcranPrincipal extends Activity implements SensorEventListener {
@@ -79,14 +81,21 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
             Toast.makeText(this,"Connection ...",Toast.LENGTH_LONG).show();
             // task.get() permet de récupérer la réponse de la base de donnée.
             String rep = task.get();
+            ArrayList<HashMap<String,String>> tab = BddExt.formate(rep);
             // après, on affiche simplement le texte retourné.
-            textView.setText(rep);
+            textView.setText(tab.toString());
             Toast.makeText(this,"Terminé",Toast.LENGTH_LONG).show();
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
         }*/
+        /*
+        ControleurBdd control = ControleurBdd.getInstance(this);
+        control.open();
+        control.synchronize();
+        ArrayList<HashMap<String, String>> s = control.selection("SELECT * FROM entreprises");
+        textView.setText(s.get(0).get("Nom"));*/
     }
 
     // onResume est une fonction appellée quand l'activité est au sommet de la pile d'activité donc ne fonctionne pas en arrière-plan.

@@ -12,6 +12,8 @@ import static android.os.FileObserver.CREATE;
 
 public class BddInt extends SQLiteOpenHelper {
 
+    private static BddInt instance = null;
+
     private static String CREATE_TABLE_ENTREPRISES =
             "CREATE TABLE IF NOT EXISTS "+"entreprises"+" ("+
                     "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
@@ -40,7 +42,8 @@ public class BddInt extends SQLiteOpenHelper {
                     "MotDePasse"+" TEXT, "+
                     "Lvl"+" INTEGER NOT NULL DEFAULT 1, "+
                     "Exp"+" INTEGER NOT NULL DEFAULT 0, "+
-                    "Pas"+" INTEGER NOT NULL DEFAULT 0);";
+                    "Pas"+" INTEGER NOT NULL DEFAULT 0, "+
+                    "Stock"+" INTEGER NOT NULL DEFAULT 0);";
     private static String CREATE_TABLE_RABAIS =
             "CREATE TABLE IF NOT EXISTS "+"rabais"+" ("+
                     "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
@@ -65,21 +68,28 @@ public class BddInt extends SQLiteOpenHelper {
                     "Image"+" TEXT NOT NULL);";
     private static String CREATE_TABLE_SUCCESPROFIL =
             "CREATE TABLE IF NOT EXISTS "+"succesprofil"+" ("+
-                    "ID"+" INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT, "+
+                    "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                     "IDProfil"+" INTEGER NOT NULL, "+
                     "IDSucces"+" INTEGER NOT NULL, "+
                     "Date"+" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);";
     private static String CREATE_TABLE_RABAISPROFIL =
             "CREATE TABLE IF NOT EXISTS "+"rabaisprofil"+" ("+
-                    "ID"+" INTEGER PRIMARY KEY NOT NULL AUTOINCREMENT, "+
+                    "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                     "IDProfil"+" INTEGER NOT NULL, "+
                     "IDRabais"+" INTEGER NOT NULL, "+
                     "Disponible"+" INTEGER NOT NULL DEFAULT 0, "+
                     "Active"+" INTEGER NOT NULL DEFAULT 0);";
 
 
-    public BddInt(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    private BddInt(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
+    }
+
+    public static BddInt getInstance(Context context){
+        if(instance == null){
+            instance = new BddInt(context, "BddInterne", null, 1);
+        }
+        return instance;
     }
 
     @Override

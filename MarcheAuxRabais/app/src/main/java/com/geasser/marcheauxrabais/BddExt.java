@@ -1,6 +1,8 @@
 package com.geasser.marcheauxrabais;
 
 import android.os.AsyncTask;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.*;
 import java.net.HttpURLConnection;
@@ -8,8 +10,12 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+
+import static java.security.AccessController.getContext;
 
 /**
  * Created by Nicolas & Vincent on 27/10/2016.
@@ -107,5 +113,24 @@ public class BddExt extends AsyncTask<String, Void, String> {
             response.append(line).append('\n');
         }
         return response.toString();
+    }
+
+    public static ArrayList<HashMap<String,String>> formate(String s){
+        ArrayList<HashMap<String,String>> tab = new ArrayList<HashMap<String,String>>();
+        s = s.substring(2,s.length());
+        s=s.replaceAll("\"","");
+        s=s.substring(0,s.length()-1);
+        String[] split = s.split("\\{");
+        for(String subStr : split){
+            subStr = subStr.substring(0,subStr.length()-2);
+            HashMap<String,String> map = new HashMap<String,String>();
+            String[] objets = subStr.split(",");
+            for(String objet : objets){
+                String[] cleVal = objet.split(":");
+                map.put(cleVal[0],cleVal[1]);
+            }
+            tab.add(map);
+        }
+        return tab;
     }
 }
