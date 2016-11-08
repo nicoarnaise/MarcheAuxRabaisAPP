@@ -77,6 +77,8 @@ public class ControleurBdd {
         // Exp(OnLine) += Stock(OffLine)
         // Stock(OffLine) = 0
         // recalcul lvl
+
+        // TODO : TESTS !
         try {
             ArrayList<HashMap<String,String>> profilOffline = selection("SELECT * FROM profil ORDER BY ID");
             String ids = "";
@@ -97,6 +99,14 @@ public class ControleurBdd {
                 profilOnline.get(i).put("Exp",pas.toString());
                 profilOffline.get(i).remove("Stock");
                 profilOffline.get(i).put("Stock","0");
+
+                // update base externe
+                for(String key : profilOnline.get(i).keySet()) {
+                    AsyncTask<String, Void, String> task1 = new BddExt().execute("UPDATE profil" +
+                            " SET " + key + " = " + profilOnline.get(i).get(key) +
+                            " WHERE ID = " + profilOnline.get(i).get("ID"));
+                }
+
                 //TODO recalculer le niveau
             }
         } catch (InterruptedException e) {
