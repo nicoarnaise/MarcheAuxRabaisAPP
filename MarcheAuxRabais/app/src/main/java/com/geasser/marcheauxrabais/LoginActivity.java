@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -39,10 +40,12 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
         AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_login);
+
         final EditText etUsername = (EditText) findViewById(R.id.etLoginUsername);
         final EditText etPassword = (EditText) findViewById(R.id.etPasswordlogin);
         final Button bLogin = (Button) findViewById(R.id.bLogin);
@@ -65,6 +68,11 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             public void onClick(View v) {
                 final String username = etUsername.getText().toString();
                 final String password = etPassword.getText().toString();
+
+                if (username.compareTo("lol")==0){
+                    Toast.makeText(LoginActivity.this, "Mere", Toast.LENGTH_SHORT).show();
+                }
+
             }
         });
 
