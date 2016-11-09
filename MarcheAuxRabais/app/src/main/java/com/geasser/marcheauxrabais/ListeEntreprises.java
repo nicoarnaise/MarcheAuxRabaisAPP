@@ -29,7 +29,6 @@ public class ListeEntreprises extends AppCompatActivity {
             e.printStackTrace();
         }*/
         ArrayList<String> Names = trierEntreprisesNom();
-        //Names.add(rep);
 
         mListView = (ListView) findViewById(R.id.listView);
 
@@ -53,7 +52,7 @@ public class ListeEntreprises extends AppCompatActivity {
 
         try {
             // On utilise la Bdd externe quand on le peut
-            AsyncTask<String, Void, String> task = new BddExt().execute("SELECT Nom From entreprises ORDER BY Nom ASC");
+            AsyncTask<String, Void, String> task = new BddExt().execute("SELECT Nom FROM entreprises ORDER BY Nom ASC");
             String rep = task.get();
             tab = BddExt.formate(rep);
         } catch (InterruptedException e) {
@@ -63,7 +62,7 @@ public class ListeEntreprises extends AppCompatActivity {
         }
         if(tab==null){
             // Si la Bdd externe n'est pas disponible (pas de connexion, ...), on utilise la bdd interne
-            tab = control.selection("SELECT Nom From entreprises ORDER BY Nom ASC");
+            tab = control.selection("SELECT Nom FROM entreprises ORDER BY Nom ASC");
             // Ne fonctionne pas pour l'instant car relancer l'appli <=> recréer la Bdd Interne. Sans
             // connexion, elle est vide.
         }
