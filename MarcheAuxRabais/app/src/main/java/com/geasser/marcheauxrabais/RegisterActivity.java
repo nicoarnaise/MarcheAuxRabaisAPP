@@ -34,12 +34,9 @@ public class RegisterActivity extends AppCompatActivity {
                 final String password = etPassword.getText().toString();
                 final String passwordConfirm = etPasswordConfirm.getText().toString();
 
-                if(tailleValideUsername(username) && tailleValidePassword(password)) {
-                        if (confirmerPassword(password, passwordConfirm)) {
-                            // On crée une AsyncTask car l'accès à un site internet ne peut se faire que de manière asynchrone sous Android
-                            AsyncTask<String, Void, String> task = new BddExt().execute("INSERT INTO profil (UserName,MotDePasse) VALUES (username,password);");
-                            Toast.makeText(RegisterActivity.this, "Connection ...", Toast.LENGTH_LONG).show();
-                        }
+                if(tailleValideUsername(username) && tailleValidePassword(password) && confirmerPassword(password, passwordConfirm)) {
+                    AsyncTask<String, Void, String> task = new BddExt().execute
+                            ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+username+"','"+password+"');");
                 }
 
             }

@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -62,6 +63,12 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         info = (TextView) findViewById(R.id.info);
         loginButton = (LoginButton) findViewById(R.id.login_button);
 
+        // Si l'utilisateur est déjà connecté alors l'envoie à l'ecran principal.
+        if ( AccessToken.getCurrentAccessToken()!=null){
+            Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
+            LoginActivity.this.startActivity(registerIntent);
+        }
+
         registerLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -92,21 +99,22 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-                info.setText(
-                        "User ID: "
-                                + loginResult.getAccessToken().getUserId()
-                                + "\n" +
-                                "Auth Token: "
-                                + loginResult.getAccessToken().getToken()
-                );
+//                info.setText(
+//                        "User ID: "
+//                                + loginResult.getAccessToken().getUserId()
+//                                + "\n" +
+//                                "Auth Token: "
+//                                + loginResult.getAccessToken().getToken()
+//                );
 
+                // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal
                 if (testProfil(loginResult.getAccessToken().getUserId(),"null")){
                     Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
                     LoginActivity.this.startActivity(profil);
+                    // Sinon créer l'ID (username) dans la BDD externe et go to écran principal.
                 }else{
-                    //info.setText(
-                           // "error"
-                   // );
+                    AsyncTask<String, Void, String> task = new BddExt().execute
+                            ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+(loginResult.getAccessToken().getUserId()+"','null');"));
                 }
 
             }
@@ -143,15 +151,16 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
             handleSignInResult(result);
+
+            // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal.
             if (testProfil(result.getSignInAccount().getId().toString(),"null")){
                 Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
                 LoginActivity.this.startActivity(profil);
+                // Sinon créer l'ID (username) dans la BDD externe et go to écran principal.
             }else{
-                //info.setText(
-                // "error"
-                // );
+                AsyncTask<String, Void, String> task = new BddExt().execute
+                        ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+(result.getSignInAccount().getId().toString()+"','null');"));
             }
-            Toast.makeText(LoginActivity.this,result.getSignInAccount().getId().toString(),Toast.LENGTH_LONG).show();
 
         }
         callbackManager.onActivityResult(requestCode, resultCode, data);
@@ -211,10 +220,10 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             // task.get() permet de récupérer la réponse de la base de donnée.
             String rep = task.get();
             ArrayList<HashMap<String,String>> tab = BddExt.formate(rep);
-            // après, on affiche simplement le texte retourné.
+            // On affiche simplement le texte retourné.
             int i =0;
             while (i<tab.size()){
-                info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
+              //  info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
                 if(tab.get(i).get("UserName").toString().compareTo(username)==0){
                     if(tab.get(i).get("MotDePasse").toString().compareTo(password)==0){
 
@@ -226,7 +235,6 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                 }
                 i++;
             }
-
 
         } catch (InterruptedException e) {
             e.printStackTrace();
