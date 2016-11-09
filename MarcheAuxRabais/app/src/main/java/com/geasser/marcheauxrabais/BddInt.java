@@ -13,6 +13,7 @@ import static android.os.FileObserver.CREATE;
 public class BddInt extends SQLiteOpenHelper {
 
     private static BddInt instance = null;
+    private Context context = null;
 
     private static String CREATE_TABLE_ENTREPRISES =
             "CREATE TABLE IF NOT EXISTS "+"entreprises"+" ("+
@@ -83,6 +84,7 @@ public class BddInt extends SQLiteOpenHelper {
 
     private BddInt(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
+        this.context = context;
     }
 
     public static BddInt getInstance(Context context){
@@ -107,7 +109,7 @@ public class BddInt extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        ControleurBdd.getInstance(context).synchronize();
     }
 
 

@@ -12,20 +12,38 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Nicolas on 07/11/2016.
+ *  Cette classe permet la gestion simplifiée de l'accès aux bases de données internes et externes.
+ *  On peut envoyer une requete soit a la base interne, soit a la base externe aussi simplement et
+ *  on recoit une reponse harmonisee.
  */
-
 public class ControleurBdd {
     private BddExt externe = null;
     private BddInt interne = null;
     protected SQLiteDatabase mDb = null;
     private static ControleurBdd instance = null;
 
+    /**
+     * Cet enum permet de savoir a quelle base on veut s'adresser.
+     */
+    public enum BASE{
+        INTERNE,
+        EXTERNE
+    }
+
+    /**
+     * Constructeur prive pour respecter le pattern du Singleton
+     * @param contexte
+     */
     private ControleurBdd(Context contexte){
         externe = new BddExt();
         interne = BddInt.getInstance(contexte);
     }
 
+    /**
+     * Permet de recuperer l'instance du controleur de bases de donnees
+     * @param contexte
+     * @return
+     */
     public static ControleurBdd getInstance(Context contexte){
         if(instance == null){
             instance = new ControleurBdd(contexte);
@@ -33,32 +51,60 @@ public class ControleurBdd {
         return instance;
     }
 
+    /**
+     * permet l'ouverture de la base de donnees interne
+     * @return la base ouverte
+     */
     public SQLiteDatabase open(){
         mDb = interne.getWritableDatabase();
         return mDb;
     }
 
-    public ArrayList<HashMap<String,String>> selection(String SQLReq){
-        mDb = interne.getReadableDatabase();
-        Cursor c = mDb.rawQuery(SQLReq, null);
-        if(c.moveToFirst()){
-            ArrayList<HashMap<String,String>> tab = new ArrayList<HashMap<String,String>>();
-            while(!c.isAfterLast()) {
-                HashMap<String, String> map = new HashMap<String, String>();
-                String[] keys = c.getColumnNames();
-                for (String key : keys) {
-                    String value = c.getString(c.getColumnIndex(key));
-                    map.put(key, value);
+    /**
+     * permet l'envoie d'une requete SELECT a la base de donnes en parametre
+     * @param SQLReq String de la requete a executer
+     * @return une liste contenant les lignes de la selection, contenant chacune les colonnes et
+     *  leurs valeurs sous forme de HashMap
+     */
+    public ArrayList<HashMap<String,String>> selection(String SQLReq, BASE b){
+        if(b == BASE.INTERNE) {
+            mDb = interne.getReadableDatabase();
+            Cursor c = mDb.rawQuery(SQLReq, null);
+            if (c.moveToFirst()) {
+                ArrayList<HashMap<String, String>> tab = new ArrayList<HashMap<String, String>>();
+                while (!c.isAfterLast()) {
+                    HashMap<String, String> map = new HashMap<String, String>();
+                    String[] keys = c.getColumnNames();
+                    for (String key : keys) {
+                        String value = c.getString(c.getColumnIndex(key));
+                        map.put(key, value);
+                    }
+                    tab.add(map);
+                    c.moveToNext();
                 }
-                tab.add(map);
-                c.moveToNext();
+                c.close();
+                return tab;
+            } else {
+                c.close();
+                return null;
             }
-            return tab;
         }else{
-            return null;
+            try {
+                AsyncTask<String, Void, String> task = new BddExt().execute(SQLReq);
+                return BddExt.formate(task.get());
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                return null;
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+                return null;
+            }
         }
     }
 
+    /**
+     * Permet la synchronisation entre la base Externe et la base Interne
+     */
     public void synchronize(){
 
         // Importation des tables en ligne
@@ -80,7 +126,7 @@ public class ControleurBdd {
 
         // TODO : TESTS !
         try {
-            ArrayList<HashMap<String,String>> profilOffline = selection("SELECT * FROM profil ORDER BY ID");
+            ArrayList<HashMap<String,String>> profilOffline = selection("SELECT * FROM profil ORDER BY ID", BASE.INTERNE);
             String ids = "";
             for (HashMap<String,String> ligne:profilOffline) {
                 ids += " OR ID="+ligne.get("ID");
@@ -118,10 +164,17 @@ public class ControleurBdd {
         //TODO mise à jour des autres tables (historique et liens)
     }
 
+    /**
+     * permet la fermeture de l'acces a la base interne
+     */
     public void close(){
         mDb = null;
     }
 
+    /**
+     * Permet l'importation de la table tableName depuis la base Externe vers la base Interne
+     * @param tableName
+     */
     private void importation(String tableName){
         AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM "+tableName);
         mDb.delete(tableName,"ID > ?",new String[]{"0"});
@@ -139,6 +192,21 @@ public class ControleurBdd {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * Permet l'execution de la requete par la base de donnee voulue.
+     * @param requete
+     */
+    public void execute(String requete, BASE b){
+        if(b==BASE.INTERNE) {
+            if (mDb == null) {
+                open();
+            }
+            mDb.execSQL(requete);
+        }else{
+            AsyncTask<String, Void, String> task = new BddExt().execute(requete);
         }
     }
 }

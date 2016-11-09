@@ -19,15 +19,6 @@ public class ListeEntreprises extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_liste_entreprises);
-        /*AsyncTask<String, Void, String> task = new BddExt().execute("INSERT INTO entreprises (Nom,Adresse,Logo,Secteur) VALUES ('Le Petit Chef', '10 Rue des Spaghettis', NULL, 2)");
-        String rep = "bleh";
-        try {
-            rep = task.get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }*/
         ArrayList<String> Names = trierEntreprisesNom();
 
         mListView = (ListView) findViewById(R.id.listView);
@@ -48,21 +39,11 @@ public class ListeEntreprises extends AppCompatActivity {
 
         ArrayList<String> Names = new ArrayList<String>();
         ControleurBdd control = ControleurBdd.getInstance(this);
-        ArrayList<HashMap<String, String>> tab = null;
 
-        try {
-            // On utilise la Bdd externe quand on le peut
-            AsyncTask<String, Void, String> task = new BddExt().execute("SELECT Nom FROM entreprises ORDER BY Nom ASC");
-            String rep = task.get();
-            tab = BddExt.formate(rep);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+        ArrayList<HashMap<String, String>> tab = control.selection("SELECT Nom FROM entreprises ORDER BY Nom ASC",ControleurBdd.BASE.EXTERNE);
         if(tab==null){
             // Si la Bdd externe n'est pas disponible (pas de connexion, ...), on utilise la bdd interne
-            tab = control.selection("SELECT Nom FROM entreprises ORDER BY Nom ASC");
+            tab = control.selection("SELECT Nom FROM entreprises ORDER BY Nom ASC", ControleurBdd.BASE.INTERNE);
             // Ne fonctionne pas pour l'instant car relancer l'appli <=> recréer la Bdd Interne. Sans
             // connexion, elle est vide.
         }
