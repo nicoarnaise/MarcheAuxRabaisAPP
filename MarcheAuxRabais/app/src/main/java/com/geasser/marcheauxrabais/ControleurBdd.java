@@ -148,9 +148,15 @@ public class ControleurBdd {
 
                 // update base externe
                 for(String key : profilOnline.get(i).keySet()) {
-                    AsyncTask<String, Void, String> task1 = new BddExt().execute("UPDATE profil" +
-                            " SET " + key + " = " + profilOnline.get(i).get(key) +
-                            " WHERE ID = " + profilOnline.get(i).get("ID"));
+                    execute("UPDATE profil" +
+                            " SET " + key + " = '" + profilOnline.get(i).get(key) +
+                            "' WHERE ID = " + profilOnline.get(i).get("ID"),BASE.EXTERNE);
+                }
+                // update base interne
+                for(String key : profilOffline.get(i).keySet()) {
+                    execute("UPDATE profil" +
+                            " SET " + key + " = '" + profilOffline.get(i).get(key) +
+                            "' WHERE ID = " + profilOffline.get(i).get("ID"),BASE.INTERNE);
                 }
 
                 //TODO recalculer le niveau

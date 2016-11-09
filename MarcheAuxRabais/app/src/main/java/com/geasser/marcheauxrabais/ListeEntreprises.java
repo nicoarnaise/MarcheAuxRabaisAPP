@@ -19,6 +19,7 @@ public class ListeEntreprises extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_liste_entreprises);
+
         ArrayList<String> Names = trierEntreprisesNom();
 
         mListView = (ListView) findViewById(R.id.listView);
@@ -34,18 +35,14 @@ public class ListeEntreprises extends AppCompatActivity {
     // Afficher la liste des entreprises disponibles dans la Bdd en les triant par nom. Utilisation
     // du contrôleur pour sélectionner depuis la base interne.
     //TODO : réadapter pour les utilisations finales. Test de démarrage ok, mais il faut pouvoir afficher
-    //TODO : la liste en hors connexion une fois les bdd synchronisées.
     public ArrayList<String> trierEntreprisesNom() {
 
         ArrayList<String> Names = new ArrayList<String>();
         ControleurBdd control = ControleurBdd.getInstance(this);
-
         ArrayList<HashMap<String, String>> tab = control.selection("SELECT Nom FROM entreprises ORDER BY Nom ASC",ControleurBdd.BASE.EXTERNE);
         if(tab==null){
             // Si la Bdd externe n'est pas disponible (pas de connexion, ...), on utilise la bdd interne
             tab = control.selection("SELECT Nom FROM entreprises ORDER BY Nom ASC", ControleurBdd.BASE.INTERNE);
-            // Ne fonctionne pas pour l'instant car relancer l'appli <=> recréer la Bdd Interne. Sans
-            // connexion, elle est vide.
         }
         for(HashMap<String,String> map : tab){
             Names.add(map.get("Nom"));
