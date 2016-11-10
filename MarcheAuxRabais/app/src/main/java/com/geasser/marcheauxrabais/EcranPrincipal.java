@@ -25,9 +25,13 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
     private TextView textView;
     private SensorManager mSensorManager;
     private Sensor mStepCounterSensor;
-
+    private int nbPas;
+    private int nbStock;
+    private int nbTot;
+    private ControleurBdd control;
 
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_ecran_principal);
         textView = (TextView) findViewById(R.id.textView);
@@ -36,6 +40,20 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         final Button bProfil = (Button) findViewById(R.id.btprofil);
         final Button bRabais = (Button) findViewById(R.id.btrabais);
 
+        control = ControleurBdd.getInstance(this);
+        ArrayList<HashMap<String, String>> tab = control.selection("SELECT Pas FROM profil WHERE UserName='"+LoginActivity.pseudo+"';",ControleurBdd.BASE.INTERNE);
+
+        if(tab!=null) {
+
+            nbPas = Integer.parseInt(tab.get(0).get("Pas"));
+            nbStock = 0;
+            //nbStock= Integer.parseInt(tab.get(0).get("Stock"));
+            nbTot = nbStock + nbPas;
+            textView.setText("Pas en stock " + nbTot);
+        }else{
+            nbTot = 0;
+            textView.setText("Erreur bdd interne");
+        }
 
         bCarte.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -48,8 +66,8 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         bChallenges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
-                // LoginActivity.this.startActivity(registerIntent);
+                //Intent registerIntent = new Intent(EcranPrincipal.this, RegisterActivity.class);
+                // EcranPrincipal.this.startActivity(registerIntent);
             }
         });
 
@@ -64,8 +82,8 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         bRabais.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
-                // LoginActivity.this.startActivity(registerIntent);
+                //Intent registerIntent = new Intent(EcranPrincipal.this, RegisterActivity.class);
+                // EcranPrincipal.this.startActivity(registerIntent);
             }
         });
 
@@ -116,15 +134,26 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         Sensor sensor = event.sensor;
         // values[0]: Acceleration minus Gx on the x-axis , 1 --> y, 2--> z
         float[] values = event.values;
-        int value = -1;
+       // int value = -1;
 
         if (values.length > 0) {
-            value = (int) values[0];
+          //  value = (int) values[0];
+            nbTot++;
         }
 
         if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-            textView.setText("Step Counter Detected : " + value);
+            textView.setText(LoginActivity.pseudo + " Step Counter Detected : " + nbTot);
         }
+
+
+       // control.execute("INSERT INTO profil (UserName,MotDePasse) VALUES ('Paul','test');",ControleurBdd.BASE.INTERNE);
+
+        //enregistre le nombre de pas dans la bdd interne tous les 10pas
+        if(nbTot%10==0)
+            control.execute("UPDATE profil SET Pas='" + nbTot + "' WHERE UserName='" + LoginActivity.pseudo + "';", ControleurBdd.BASE.INTERNE);
+
+       // control.selection("SELECT Pas FROM profil WHERE UserName='Paul';",ControleurBdd.BASE.INTERNE);
+
     }
 
     @Override
@@ -132,9 +161,9 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         // Obligatoire quand SensorEventListener est implémeté
     }
 
-    // Empeche le retour arrière
-    @Override
-    public void onBackPressed(){
-
-    }
+//    // Empeche le retour arrière
+//    @Override
+//    public void onBackPressed(){
+//
+//    }
 }

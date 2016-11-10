@@ -1,10 +1,14 @@
 package com.geasser.marcheauxrabais;
 
 import android.content.Intent;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.Signature;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +31,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
@@ -44,6 +50,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     private TextView info;
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
+    public static String pseudo=null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +61,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         AppEventsLogger.activateApp(this);
         setContentView(R.layout.activity_login);
 
+
         final EditText etUsername = (EditText) findViewById(R.id.etLoginUsername);
         final EditText etPassword = (EditText) findViewById(R.id.etPasswordlogin);
         final Button bLogin = (Button) findViewById(R.id.bLogin);
@@ -63,8 +71,9 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         info = (TextView) findViewById(R.id.info);
         loginButton = (LoginButton) findViewById(R.id.login_button);
 
-        // Si l'utilisateur est déjà connecté alors l'envoie à l'ecran principal.
+        // Si l'utilisateur est déjà connecté avec Facebook alors l'envoie à l'ecran principal.
         if ( AccessToken.getCurrentAccessToken()!=null){
+            pseudo = AccessToken.getCurrentAccessToken().getUserId();
             Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
             LoginActivity.this.startActivity(registerIntent);
         }
@@ -80,21 +89,18 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         bLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String username = etUsername.getText().toString();
+                pseudo = etUsername.getText().toString();
                 final String password = etPassword.getText().toString();
 
-
-                if(testProfil(username,password)){
+                if(testProfil(pseudo,password)){
                     Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
                     LoginActivity.this.startActivity(registerIntent);
                 }
                 else{
                     Toast.makeText(LoginActivity.this,"Pseudo ou mot de passe erroné",Toast.LENGTH_LONG).show();
                 }
-
             }
         });
-
 
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -109,6 +115,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 
                 // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal
                 if (testProfil(loginResult.getAccessToken().getUserId(),"null")){
+                    pseudo = AccessToken.getCurrentAccessToken().getUserId();
                     Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
                     LoginActivity.this.startActivity(profil);
                     // Sinon créer l'ID (username) dans la BDD externe et go to écran principal.
@@ -116,7 +123,6 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                     AsyncTask<String, Void, String> task = new BddExt().execute
                             ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+(loginResult.getAccessToken().getUserId()+"','null');"));
                 }
-
             }
 
             @Override
@@ -131,13 +137,13 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         });
 
         // Configure sign-in to request the user's ID, email address, and basic
-// profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestEmail()
                 .build();
 
         // Build a GoogleApiClient with access to the Google Sign-In API and the
-// options specified by gso.
+        // options specified by gso.
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
                 .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
@@ -154,6 +160,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 
             // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal.
             if (testProfil(result.getSignInAccount().getId().toString(),"null")){
+                pseudo=result.getSignInAccount().getId().toString();
                 Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
                 LoginActivity.this.startActivity(profil);
                 // Sinon créer l'ID (username) dans la BDD externe et go to écran principal.
@@ -161,14 +168,12 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                 AsyncTask<String, Void, String> task = new BddExt().execute
                         ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+(result.getSignInAccount().getId().toString()+"','null');"));
             }
-
         }
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
-
     }
 
     @Override
@@ -177,7 +182,6 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             case R.id.sign_in_button:
                 signIn();
                 break;
-            // ...
         }
     }
 
@@ -214,7 +218,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         }
     }
 
-    private boolean testProfil(String username, String password){
+    public boolean testProfil(String username, String password){
         AsyncTask<String, Void, String> task = new BddExt().execute("SELECT UserName, MotDePasse FROM profil");
         try {
             // task.get() permet de récupérer la réponse de la base de donnée.
@@ -226,16 +230,13 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
               //  info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
                 if(tab.get(i).get("UserName").toString().compareTo(username)==0){
                     if(tab.get(i).get("MotDePasse").toString().compareTo(password)==0){
-
                         return true;
                     }else {
-
                         return false;
                     }
                 }
                 i++;
             }
-
         } catch (InterruptedException e) {
             e.printStackTrace();
         } catch (ExecutionException e) {
