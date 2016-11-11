@@ -68,6 +68,9 @@ public class ControleurBdd {
      */
     public ArrayList<HashMap<String,String>> selection(String SQLReq, BASE b){
         if(b == BASE.INTERNE) {
+            if(mDb == null){
+                open();
+            }
             mDb = interne.getReadableDatabase();
             Cursor c = mDb.rawQuery(SQLReq, null);
             if (c.moveToFirst()) {
@@ -106,6 +109,10 @@ public class ControleurBdd {
      * Permet la synchronisation entre la base Externe et la base Interne
      */
     public void synchronize(){
+
+        if(mDb == null){
+            open();
+        }
 
         // Importation des tables en ligne
         // --------------------------------
@@ -183,6 +190,9 @@ public class ControleurBdd {
      */
     private void importation(String tableName){
         AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM "+tableName);
+        if(mDb == null){
+            open();
+        }
         mDb.delete(tableName,"ID > ?",new String[]{"0"});
         try {
             String rep = task.get();
@@ -214,5 +224,21 @@ public class ControleurBdd {
         }else{
             AsyncTask<String, Void, String> task = new BddExt().execute(requete);
         }
+    }
+
+    /**
+     * Cette fonction permet d'importer un profil en ligne sur le smartphone.
+     * @param ID l'id de la ligne du profil dans la base de données en lignes.
+     */
+    public void ajouteProfil(int ID){
+        ArrayList<HashMap<String,String>> profil = selection("SELECT * FROM profil WHERE ID="+ID,BASE.EXTERNE);
+        String colomns = "INSERT INTO profil (";
+        String values = ") VALUES (";
+        for(String key : profil.get(0).keySet()){
+            colomns = colomns+key+",";
+            values = values+profil.get(0).get(key)+",";
+        }
+        String request = colomns.substring(0,colomns.length()-2)+ values.substring(0,values.length()-2)+");";
+        execute(request,BASE.INTERNE);
     }
 }
