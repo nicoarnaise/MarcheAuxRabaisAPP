@@ -39,6 +39,7 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         final Button bChallenges = (Button) findViewById(R.id.btchallenges);
         final Button bProfil = (Button) findViewById(R.id.btprofil);
         final Button bRabais = (Button) findViewById(R.id.btrabais);
+        final Button bSettings = (Button) findViewById(R.id.btSettings);
 
         control = ControleurBdd.getInstance(this);
         ArrayList<HashMap<String, String>> tab = control.selection("SELECT Pas FROM profil WHERE UserName='"+LoginActivity.pseudo+"';",ControleurBdd.BASE.INTERNE);
@@ -66,8 +67,8 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         bChallenges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent registerIntent = new Intent(EcranPrincipal.this, RegisterActivity.class);
-                // EcranPrincipal.this.startActivity(registerIntent);
+                Intent ChallengeIntent = new Intent(EcranPrincipal.this, ChallengeActivity.class);
+                EcranPrincipal.this.startActivity(ChallengeIntent);
             }
         });
 
@@ -82,11 +83,19 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         bRabais.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //Intent registerIntent = new Intent(EcranPrincipal.this, RegisterActivity.class);
-                // EcranPrincipal.this.startActivity(registerIntent);
+                Intent RabaisIntent = new Intent(EcranPrincipal.this, RabaisActivity.class);
+                EcranPrincipal.this.startActivity(RabaisIntent);
             }
         });
 
+        bSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent SettingsIntent = new Intent(EcranPrincipal.this, SettingsActivity.class);
+                EcranPrincipal.this.startActivity(SettingsIntent);
+            }
+        });
+        
         mSensorManager = (SensorManager)
                 getSystemService(Context.SENSOR_SERVICE);
         mStepCounterSensor = mSensorManager

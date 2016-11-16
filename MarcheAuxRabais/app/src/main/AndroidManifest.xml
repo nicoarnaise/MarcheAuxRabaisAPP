@@ -13,7 +13,6 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.MAPS_RECEIVE" />
 
-
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -38,15 +37,12 @@
             android:name="@string/step_counter"
             android:required="false" />
 
-        <activity android:name=".RegisterActivity">
-
-        </activity>
+        <activity android:name=".RegisterActivity" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
         <activity android:name=".EcranPrincipal" />
-
         <activity android:name=".ListeEntreprises" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -58,14 +54,12 @@
         -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCzLeAcZyTaYOhpD4jm7Tp3noT6SVM4QlM"
-            />
+            android:value="AIzaSyCzLeAcZyTaYOhpD4jm7Tp3noT6SVM4QlM" />
 
         <activity
             android:name=".MapsActivity"
             android:label="@string/title_activity_maps" />
         <activity android:name=".ProfilActivity" />
-
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -73,6 +67,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".ChallengeActivity" />
+        <activity android:name=".RabaisActivity" />
+        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>

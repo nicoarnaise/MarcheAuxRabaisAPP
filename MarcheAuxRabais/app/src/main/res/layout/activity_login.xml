@@ -55,7 +55,7 @@
 
 
     <TextView
-        android:text="TextView"
+        android:text="info"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/info"
@@ -75,9 +75,9 @@
         android:id="@+id/sign_in_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/tvRegisterHere"
-        android:layout_toEndOf="@+id/tvRegisterHere"
-        android:layout_marginTop="34dp" />
+        android:layout_marginTop="44dp"
+        android:layout_below="@+id/login_button"
+        android:layout_alignStart="@+id/login_button" />
 
 
 </RelativeLayout>
