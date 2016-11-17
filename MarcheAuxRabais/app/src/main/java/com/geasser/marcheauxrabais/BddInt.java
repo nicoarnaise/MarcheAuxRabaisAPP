@@ -20,6 +20,8 @@ public class BddInt extends SQLiteOpenHelper {
                     "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                     "Nom"+" TEXT NOT NULL, "+
                     "Adresse"+" TEXT NOT NULL, "+
+                    "Latitude"+" REAL NOT NULL, "+
+                    "Longitude"+" REAL NOT NULL, "+
                     "Logo"+" TEXT, "+
                     "Secteur"+" INTEGER NOT NULL DEFAULT 1);";
     public static String CREATE_TABLE_HISTACHAT =
@@ -110,6 +112,14 @@ public class BddInt extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE entreprises");
+        db.execSQL("DROP TABLE rabais");
+        db.execSQL("DROP TABLE secteurs");
+        db.execSQL("DROP TABLE succes");
+        db.execSQL(CREATE_TABLE_ENTREPRISES);
+        db.execSQL(CREATE_TABLE_RABAIS);
+        db.execSQL(CREATE_TABLE_SECTEURS);
+        db.execSQL(CREATE_TABLE_SUCCES);
         ControleurBdd.getInstance(context).synchronize();
     }
 
