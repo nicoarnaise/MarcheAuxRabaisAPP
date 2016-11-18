@@ -219,29 +219,21 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     }
 
     public boolean testProfil(String username, String password){
-        AsyncTask<String, Void, String> task = new BddExt().execute("SELECT UserName, MotDePasse FROM profil");
-        try {
-            // task.get() permet de récupérer la réponse de la base de donnée.
-            String rep = task.get();
-            ArrayList<HashMap<String,String>> tab = BddExt.formate(rep);
+
+            ArrayList<HashMap<String,String>> tab = ControleurBdd.getInstance(this).selection("SELECT UserName, MotDePasse FROM profil", ControleurBdd.BASE.INTERNE);
             // On affiche simplement le texte retourné.
             int i =0;
-            while (i<tab.size()){
-              //  info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
-                if(tab.get(i).get("UserName").toString().compareTo(username)==0){
-                    if(tab.get(i).get("MotDePasse").toString().compareTo(password)==0){
+            while (i<tab.size()) {
+                //  info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
+                if (tab.get(i).get("UserName").toString().compareTo(username) == 0) {
+                    if (tab.get(i).get("MotDePasse").toString().compareTo(password) == 0) {
                         return true;
-                    }else {
+                    } else {
                         return false;
                     }
                 }
                 i++;
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
         return false;
     }
 

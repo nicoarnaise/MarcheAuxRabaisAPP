@@ -3,6 +3,7 @@ package com.geasser.marcheauxrabais;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -30,7 +31,10 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.concurrent.ExecutionException;
 
 
 public class MapsActivity extends FragmentActivity implements
@@ -82,9 +86,10 @@ public class MapsActivity extends FragmentActivity implements
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         // LatLng(Latitude,Longitude)
-        LatLng chicoutimi = new LatLng(48.4222, -71.0619);
+        //LatLng chicoutimi = new LatLng(48.4222, -71.0619);
         // Ajoute un marqueur rouge sur la carte à la latitude et la longitude de Chicoutimi
-        mMap.addMarker(new MarkerOptions().position(chicoutimi).title("Marker in Chicoutimi").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
+       // mMap.addMarker(new MarkerOptions().position(chicoutimi).title("Marker in Chicoutimi").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
+        getMaker();
 
 
         // Obligatoire d'avoir l'autorisation de l'utilisateur pour la localisation.
@@ -279,6 +284,24 @@ public class MapsActivity extends FragmentActivity implements
            }
             updateUI();
         }
+    }
+
+    public void getMaker (){
+        HashMap<String,LatLng> list = new HashMap<String, LatLng>();
+        ArrayList<HashMap<String,String>> tab = ControleurBdd.getInstance(this).selection("SELECT Nom, Latitude, Longitude FROM entreprises", ControleurBdd.BASE.INTERNE);
+        // On affiche simplement le texte retourné.
+        int i =0;
+        while (i<tab.size()){
+            //  info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
+            LatLng coordo = new LatLng(Double.parseDouble(tab.get(i).get("Latitude")),Double.parseDouble(tab.get(i).get("Longitude")));
+            String nomEntreprise = tab.get(i).get("Nom");
+            list.put(nomEntreprise,coordo);
+            i++;
+        }
+        for (String key : list.keySet()){
+            mMap.addMarker(new MarkerOptions().position(list.get(key)).title(key).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
+        }
+
     }
 
 

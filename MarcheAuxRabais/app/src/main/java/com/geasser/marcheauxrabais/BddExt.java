@@ -1,5 +1,6 @@
 package com.geasser.marcheauxrabais;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -115,7 +116,7 @@ public class BddExt extends AsyncTask<String, Void, String> {
         return response.toString();
     }
 
-    public static ArrayList<HashMap<String,String>> formate(String s){
+    public static ArrayList<HashMap<String,String>> formate(String s, Context context){
         ArrayList<HashMap<String,String>> tab = new ArrayList<HashMap<String,String>>();
         s = s.substring(2,s.length());
         s=s.replaceAll("\"","");

@@ -11,6 +11,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
+import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_ENTREPRISES;
+import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_RABAIS;
+import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_SECTEURS;
+import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_SUCCES;
+
 /**
  *  Cette classe permet la gestion simplifiée de l'accès aux bases de données internes et externes.
  *  On peut envoyer une requete soit a la base interne, soit a la base externe aussi simplement et
@@ -21,6 +26,7 @@ public class ControleurBdd {
     private BddInt interne = null;
     protected SQLiteDatabase mDb = null;
     private static ControleurBdd instance = null;
+    private Context contexte;
 
     /**
      * Cet enum permet de savoir a quelle base on veut s'adresser.
@@ -37,6 +43,7 @@ public class ControleurBdd {
     private ControleurBdd(Context contexte){
         externe = new BddExt();
         interne = BddInt.getInstance(contexte);
+        this.contexte = contexte;
     }
 
     /**
@@ -94,7 +101,7 @@ public class ControleurBdd {
         }else{
             try {
                 AsyncTask<String, Void, String> task = new BddExt().execute(SQLReq);
-                return BddExt.formate(task.get());
+                return BddExt.formate(task.get(),contexte);
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 return null;
@@ -140,7 +147,7 @@ public class ControleurBdd {
             }
             ids = ids.substring(4);
             AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM profil WHERE "+ids+" ORDER BY ID");
-            ArrayList<HashMap<String,String>> profilOnline = BddExt.formate(task.get());
+            ArrayList<HashMap<String,String>> profilOnline = BddExt.formate(task.get(),contexte);
             for(int i = 0; i<profilOnline.size();i++){
                 Integer pas = Integer.parseInt(profilOnline.get(i).get("Pas"))+Integer.parseInt(profilOffline.get(i).get("Stock"));
                 profilOnline.get(i).remove("Pas");
@@ -196,7 +203,7 @@ public class ControleurBdd {
         mDb.delete(tableName,"ID > ?",new String[]{"0"});
         try {
             String rep = task.get();
-            ArrayList<HashMap<String,String>> tab = BddExt.formate(rep);
+            ArrayList<HashMap<String,String>> tab = BddExt.formate(rep,contexte);
             for(HashMap<String,String> map : tab){
                 ContentValues value = new ContentValues();
                 for(String key : map.keySet()){
