@@ -33,6 +33,7 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        ControleurBdd.getInstance(this).synchronize();
         setContentView(R.layout.activity_ecran_principal);
         textView = (TextView) findViewById(R.id.textView);
         final Button bCarte = (Button) findViewById(R.id.btcarte);

@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent" android:layout_height="wrap_content"
+    android:id="@+id/LL_Fond"
+    android:orientation="vertical"
+    android:background="@android:drawable/dialog_holo_light_frame">
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/LL_Show">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:srcCompat="@mipmap/ic_launcher"
+            android:id="@+id/imageRabais"
+            android:layout_weight="5" />
+
+        <TextView
+            android:text="Titre du Rabais"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/titreRabais"
+            android:gravity="center_vertical"
+            android:paddingLeft="10dp"
+            android:layout_weight="3"
+            android:paddingRight="10dp" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="5"
+            android:id="@+id/LL_Achat">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:srcCompat="@mipmap/caddie"
+                android:id="@+id/imageAchat"
+                android:layout_weight="2" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/LL_Prix"
+                android:layout_weight="3"
+                android:layout_gravity="right|center_vertical">
+
+                <TextView
+                    android:text="prix en pas"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/textePrix"
+                    android:layout_weight="3"
+                    android:gravity="right|center_vertical"
+                    android:textSize="12sp"
+                    android:paddingRight="5dp"
+                    android:paddingLeft="5dp" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:id="@+id/imagePas"
+                    android:layout_weight="3"
+                    app:srcCompat="@mipmap/pas" />
+
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+
+    <TextView
+        android:text="TextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/description"
+        android:layout_weight="1"
+        android:visibility="gone"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingBottom="0dp"
+        android:paddingTop="0dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp" />
+
+</LinearLayout>

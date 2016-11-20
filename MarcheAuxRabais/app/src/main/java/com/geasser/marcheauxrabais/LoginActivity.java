@@ -51,6 +51,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
     public static String pseudo=null;
+    public static int IDuser=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +75,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         // Si l'utilisateur est déjà connecté avec Facebook alors l'envoie à l'ecran principal.
         if ( AccessToken.getCurrentAccessToken()!=null){
             pseudo = AccessToken.getCurrentAccessToken().getUserId();
+            IDuser=Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT ID FROM profil WHERE UserName='"+pseudo+"'", ControleurBdd.BASE.INTERNE).get(0).get("ID"));
             Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
             LoginActivity.this.startActivity(registerIntent);
         }
@@ -167,6 +169,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             }else{
                 AsyncTask<String, Void, String> task = new BddExt().execute
                         ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+(result.getSignInAccount().getId().toString()+"','null');"));
+                IDuser=Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT ID WHERE UserName="+result.getSignInAccount().getId(), ControleurBdd.BASE.EXTERNE).get(0).get("ID"));
             }
         }
         callbackManager.onActivityResult(requestCode, resultCode, data);
@@ -220,13 +223,14 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 
     public boolean testProfil(String username, String password){
 
-            ArrayList<HashMap<String,String>> tab = ControleurBdd.getInstance(this).selection("SELECT UserName, MotDePasse FROM profil", ControleurBdd.BASE.INTERNE);
+            ArrayList<HashMap<String,String>> tab = ControleurBdd.getInstance(this).selection("SELECT ID, UserName, MotDePasse FROM profil", ControleurBdd.BASE.INTERNE);
             // On affiche simplement le texte retourné.
             int i =0;
             while (i<tab.size()) {
                 //  info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
                 if (tab.get(i).get("UserName").toString().compareTo(username) == 0) {
                     if (tab.get(i).get("MotDePasse").toString().compareTo(password) == 0) {
+                        IDuser = Integer.parseInt(tab.get(i).get("ID"));
                         return true;
                     } else {
                         return false;

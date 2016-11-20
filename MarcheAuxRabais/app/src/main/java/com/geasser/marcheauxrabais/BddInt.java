@@ -27,14 +27,14 @@ public class BddInt extends SQLiteOpenHelper {
     public static String CREATE_TABLE_HISTACHAT =
             "CREATE TABLE IF NOT EXISTS "+"histachat"+" ("+
                     "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
-                    "Utilisateur"+" INT NOT NULL, "+
-                    "DATE"+" TEXT NOT NULL, "+
+                    "Utilisateur"+" INTEGER NOT NULL, "+
+                    "DATE"+" INTEGER NOT NULL, "+
                     "Rabais"+" INTEGER NOT NULL);";
     public static String CREATE_TABLE_HISTORIQUE =
             "CREATE TABLE IF NOT EXISTS "+"historique"+" ("+
                     "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
-                    "Utilisateur"+" INT NOT NULL, "+
-                    "DATE"+" TEXT NOT NULL, "+
+                    "Utilisateur"+" INTEGER NOT NULL, "+
+                    "DATE"+" INTEGER NOT NULL, "+
                     "Pas"+" INTEGER NOT NULL, "+
                     "Km"+" INTEGER NOT NULL, "+
                     "Kcal"+" INTEGER NOT NULL);";
@@ -75,7 +75,7 @@ public class BddInt extends SQLiteOpenHelper {
                     "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+
                     "IDProfil"+" INTEGER NOT NULL, "+
                     "IDSucces"+" INTEGER NOT NULL, "+
-                    "Date"+" TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP);";
+                    "Date"+" INTEGER NOT NULL DEFAULT CURRENT_TIMESTAMP);";
     public static String CREATE_TABLE_RABAISPROFIL =
             "CREATE TABLE IF NOT EXISTS "+"rabaisprofil"+" ("+
                     "ID"+" INTEGER PRIMARY KEY AUTOINCREMENT, "+

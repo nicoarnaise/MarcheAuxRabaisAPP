@@ -12,9 +12,13 @@ import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
 import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_ENTREPRISES;
+import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_HISTACHAT;
+import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_HISTORIQUE;
 import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_RABAIS;
+import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_RABAISPROFIL;
 import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_SECTEURS;
 import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_SUCCES;
+import static com.geasser.marcheauxrabais.BddInt.CREATE_TABLE_SUCCESPROFIL;
 
 /**
  *  Cette classe permet la gestion simplifiée de l'accès aux bases de données internes et externes.
@@ -121,8 +125,26 @@ public class ControleurBdd {
             open();
         }
 
+        /*mDb.execSQL("DROP TABLE entreprises");
+        mDb.execSQL("DROP TABLE rabais");
+        mDb.execSQL("DROP TABLE secteurs");
+        mDb.execSQL("DROP TABLE succes");
+        mDb.execSQL("DROP TABLE succesprofil");
+        mDb.execSQL("DROP TABLE rabaisprofil");
+        mDb.execSQL("DROP TABLE historique");
+        mDb.execSQL("DROP TABLE histachat");
+        mDb.execSQL(CREATE_TABLE_ENTREPRISES);
+        mDb.execSQL(CREATE_TABLE_RABAIS);
+        mDb.execSQL(CREATE_TABLE_SECTEURS);
+        mDb.execSQL(CREATE_TABLE_SUCCES);
+        mDb.execSQL(CREATE_TABLE_SUCCESPROFIL);
+        mDb.execSQL(CREATE_TABLE_RABAISPROFIL);
+        mDb.execSQL(CREATE_TABLE_HISTORIQUE);
+        mDb.execSQL(CREATE_TABLE_HISTACHAT);*/
+
         // Importation des tables en ligne
         // --------------------------------
+
         importation("entreprises");
         importation("rabais");
         importation("secteurs");
@@ -182,6 +204,31 @@ public class ControleurBdd {
         }
 
         //TODO mise à jour des autres tables (historique et liens)
+        // mise à jour histachat
+        try{
+            ArrayList<HashMap<String,String>> liste = selection("SELECT * FROM histachat WHERE Utilisateur="+LoginActivity.IDuser,BASE.EXTERNE);
+            execute("DELETE FROM histachat WHERE Utilisateur="+LoginActivity.IDuser, BASE.INTERNE);
+            for(HashMap<String,String> map : liste){
+                ContentValues value = new ContentValues();
+                for(String key : map.keySet()){
+                    value.put(key,map.get(key));
+                }
+                mDb.insertWithOnConflict("histachat",null,value,SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            //mise à jour rabaisprofil
+            //TODO a modifier
+            liste = selection("SELECT * FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser,BASE.EXTERNE);
+            execute("DELETE FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser, BASE.INTERNE);
+            for(HashMap<String,String> map : liste){
+                ContentValues value = new ContentValues();
+                for(String key : map.keySet()){
+                    value.put(key,map.get(key));
+                }
+                mDb.insertWithOnConflict("rabaisprofil",null,value,SQLiteDatabase.CONFLICT_REPLACE);
+            }
+        }catch (Exception e){
+
+        }
     }
 
     /**
