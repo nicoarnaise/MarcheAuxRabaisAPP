@@ -58,7 +58,7 @@ public class RabaisAdapter extends BaseAdapter {
 
         //(2) : Récupération des Views a modifier de notre layout
         TextView tv_Titre = (TextView)layoutItem.findViewById(R.id.titreRabais);
-        TextView tv_Activation = (TextView)layoutItem.findViewById(R.id.activation);
+        //TextView tv_Activation = (TextView)layoutItem.findViewById(R.id.activation);
         TextView tv_Prix = (TextView)layoutItem.findViewById(R.id.textePrix);
         TextView tv_Description = (TextView)layoutItem.findViewById(R.id.description);
         ImageView iv_Image = (ImageView)layoutItem.findViewById(R.id.imageRabais);
@@ -67,7 +67,7 @@ public class RabaisAdapter extends BaseAdapter {
         //(3) : Renseignement des valeurs
         tv_Titre.setText(mListR.get(position).titre);
         //tv_Activation.setText("Activer le rabais");
-        tv_Activation.setAlpha(mListR.get(position).active?1f:0.1f);
+        //tv_Activation.setAlpha(mListR.get(position).active?1f:0.1f);
         tv_Prix.setText(""+mListR.get(position).prix);
         tv_Description.setText(mListR.get(position).description);
         iv_Image.setImageResource(R.mipmap.ic_launcher);
@@ -77,14 +77,14 @@ public class RabaisAdapter extends BaseAdapter {
         //On mémorise la position de la "Personne" dans le composant textview
         layoutItem.setTag(position);
         tv_Titre.setTag(position);
-        tv_Activation.setTag(position);
+        //tv_Activation.setTag(position);
         tv_Description.setTag(position);
         iv_Image.setTag(position);
         iv_Caddie.setTag(position);
 
         //On ajoute un listener
         tv_Titre.setOnClickListener(new MyOnClickListener());
-        tv_Activation.setOnClickListener(new ActivateClickListener());
+        //tv_Activation.setOnClickListener(new ActivateClickListener());
         tv_Description.setOnClickListener(new MyOnClickListener());
         iv_Image.setOnClickListener(new MyOnClickListener());
         iv_Caddie.setOnClickListener(new AchatClickListener());
@@ -114,11 +114,11 @@ public class RabaisAdapter extends BaseAdapter {
         }
     }
 
-    private void sendActivate(Rabais item, int position){
+    /*private void sendActivate(Rabais item, int position){
         for(int i = mListListener.size()-1; i>=0; i--){
             mListListener.get(i).onClickActivate(item, position);
         }
-    }
+    }*/
 
     /**
      * Interface pour écouter les évènements sur les éléments du Rabais
@@ -126,7 +126,7 @@ public class RabaisAdapter extends BaseAdapter {
     public interface RabaisAdapterListener {
         public void onClickNom(Rabais item, int position);
         public void onClickAchat(Rabais item, int position);
-        public void onClickActivate(Rabais item, int position);
+        //public void onClickActivate(Rabais item, int position);
     }
 
     /**
@@ -154,7 +154,7 @@ public class RabaisAdapter extends BaseAdapter {
         }
     }
 
-    public class ActivateClickListener implements  View.OnClickListener{
+    /*public class ActivateClickListener implements  View.OnClickListener{
         @Override
         public void onClick(View v) {
             //Lorsque l'on clique sur le nom, on récupère la position du Rabais
@@ -163,5 +163,5 @@ public class RabaisAdapter extends BaseAdapter {
             //On prévient les listeners qu'il y a eu un clic.
             sendActivate(mListR.get(position), position);
         }
-    }
+    }*/
 }

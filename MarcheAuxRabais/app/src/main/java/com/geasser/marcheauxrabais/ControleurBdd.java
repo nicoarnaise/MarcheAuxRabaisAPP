@@ -192,47 +192,50 @@ public class ControleurBdd {
     }
 
     public void syncProfil(){
-        try {
-            ArrayList<HashMap<String,String>> profilOffline = selection("SELECT * FROM profil ORDER BY ID", BASE.INTERNE);
-            String ids = "";
-            for (HashMap<String,String> ligne:profilOffline) {
-                ids += " OR ID="+ligne.get("ID");
-            }
-            ids = ids.substring(4);
-            AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM profil WHERE "+ids+" ORDER BY ID");
-            ArrayList<HashMap<String,String>> profilOnline = BddExt.formate(task.get(),contexte);
-            for(int i = 0; i<profilOnline.size();i++){
-                Integer pas = Integer.parseInt(profilOnline.get(i).get("Pas"))+Integer.parseInt(profilOffline.get(i).get("Stock"));
-                profilOnline.get(i).remove("Pas");
-                profilOffline.get(i).remove("Pas");
-                profilOnline.get(i).put("Pas",pas.toString());
-                profilOffline.get(i).put("Pas",pas.toString());
-                pas = Integer.parseInt(profilOnline.get(i).get("Exp"))+Integer.parseInt(profilOffline.get(i).get("Stock"));
-                profilOnline.get(i).remove("Exp");
-                profilOnline.get(i).put("Exp",pas.toString());
-                profilOffline.get(i).remove("Stock");
-                profilOffline.get(i).put("Stock","0");
 
-                // update base externe
-                for(String key : profilOnline.get(i).keySet()) {
-                    execute("UPDATE profil" +
-                            " SET " + key + " = '" + profilOnline.get(i).get(key) +
-                            "' WHERE ID = " + profilOnline.get(i).get("ID"),BASE.EXTERNE);
-                }
-                // update base interne
-                for(String key : profilOffline.get(i).keySet()) {
-                    execute("UPDATE profil" +
-                            " SET " + key + " = '" + profilOffline.get(i).get(key) +
-                            "' WHERE ID = " + profilOffline.get(i).get("ID"),BASE.INTERNE);
+            ArrayList<HashMap<String,String>> profilOffline = selection("SELECT * FROM profil WHERE ID="+LoginActivity.IDuser, BASE.INTERNE);
+            String ids = "ID="+LoginActivity.IDuser;
+                try {
+                    AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM profil WHERE "+ids);
+                    ArrayList<HashMap<String,String>> profilOnline = BddExt.formate(task.get(),contexte);
+                    if(profilOffline != null){
+                        for(int i = 0; i<profilOnline.size();i++){
+                            Integer pas = Integer.parseInt(profilOnline.get(i).get("Pas"))+Integer.parseInt(profilOffline.get(i).get("Stock"));
+                            profilOnline.get(i).remove("Pas");
+                            profilOffline.get(i).remove("Pas");
+                            profilOnline.get(i).put("Pas",pas.toString());
+                            profilOffline.get(i).put("Pas",pas.toString());
+                            pas = Integer.parseInt(profilOnline.get(i).get("Exp"))+Integer.parseInt(profilOffline.get(i).get("Stock"));
+                            profilOnline.get(i).remove("Exp");
+                            profilOnline.get(i).put("Exp",pas.toString());
+                            profilOffline.get(i).remove("Stock");
+                            profilOffline.get(i).put("Stock","0");
+
+                            // update base externe
+                            for(String key : profilOnline.get(i).keySet()) {
+                                execute("UPDATE profil" +
+                                    " SET " + key + " = '" + profilOnline.get(i).get(key) +
+                                    "' WHERE ID = " + profilOnline.get(i).get("ID"),BASE.EXTERNE);
+                            }
+                            // update base interne
+                            for(String key : profilOffline.get(i).keySet()) {
+                                execute("UPDATE profil" +
+                                    " SET " + key + " = '" + profilOffline.get(i).get(key) +
+                                    "' WHERE ID = " + profilOffline.get(i).get("ID"),BASE.INTERNE);
+                            }
+
+                        //TODO recalculer le niveau
+                    }
+                    }else{
+                        execute("INSERT INTO profil (ID,UserName,MotDePasse,Lvl,Exp,Pas) VALUES ("+profilOnline.get(0).get("ID")+",'"+profilOnline.get(0).get("UserName")+"','"+profilOnline.get(0).get("MotDePasse")+"',"+profilOnline.get(0).get("Lvl")+","+profilOnline.get(0).get("Exp")+","+profilOnline.get(0).get("Pas")+")",BASE.INTERNE);
+                    }
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                } catch (ExecutionException e) {
+                    e.printStackTrace();
                 }
 
-                //TODO recalculer le niveau
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
+
     }
 
     /**

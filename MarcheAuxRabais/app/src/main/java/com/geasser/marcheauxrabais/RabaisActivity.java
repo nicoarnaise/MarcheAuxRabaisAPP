@@ -25,6 +25,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Mes Rabais");
         setContentView(R.layout.activity_rabais);
 
         ControleurBdd control = ControleurBdd.getInstance(this);
@@ -46,7 +47,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         //Initialisation de la liste avec les données
         list.setAdapter(adapter);
 
-        //Timer des temps impartis pour les rabais activés
+        /*//Timer des temps impartis pour les rabais activés
         int i = 0;
         for (Rabais item : listR){
             if (item.active){
@@ -76,7 +77,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                     }
                 });
             }
-        },0,1000);
+        },0,1000);*/
     }
 
     protected void expiration(Rabais item){
@@ -99,14 +100,14 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
             }catch(Exception e){
                 verifAchat=true;
             }
-            try{
+            /*try{
                 rep = Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT Disponible FROM rabaisprofil WHERE IDprofil="+LoginActivity.IDuser+" AND IDRabais="+map.get("ID"), ControleurBdd.BASE.INTERNE).get(0).get("Disponible"));
                 activable=(rep!=2);
             }catch(Exception e){
                 activable=false;
-            }
+            }*/
             dispo = (Integer.parseInt(map.get("Cout"))<pas+stock) && verifAchat;
-            listR.add(new Rabais(Integer.parseInt(map.get("ID")),map.get("Image"),map.get("Nom"),Integer.parseInt(map.get("Cout")),map.get("Description"),dispo, activable));
+            listR.add(new Rabais(Integer.parseInt(map.get("ID")),map.get("Image"),map.get("Nom"),Integer.parseInt(map.get("Cout")),map.get("Description"),dispo, false));
         }
         return listR;
     }
@@ -153,7 +154,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         }
     }
 
-    public void onClickActivate(Rabais item, int position){
+/*    public void onClickActivate(Rabais item, int position){
         ListView list = (ListView)findViewById(R.id.ListView01);
         TextView selected = (TextView)list.findViewWithTag(position).findViewById(R.id.activation);
         Toast.makeText(this,"Activation en cours ...",Toast.LENGTH_SHORT).show();
@@ -174,5 +175,5 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         }else{
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
         }
-    }
+    }*/
 }

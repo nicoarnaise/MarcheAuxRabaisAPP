@@ -291,7 +291,7 @@ public class MapsActivity extends FragmentActivity implements
         ArrayList<HashMap<String,String>> tab = ControleurBdd.getInstance(this).selection("SELECT Nom, Latitude, Longitude FROM entreprises", ControleurBdd.BASE.INTERNE);
         // On affiche simplement le texte retourné.
         int i =0;
-        while (i<tab.size()){
+            while (i<tab.size()){
             //  info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
             LatLng coordo = new LatLng(Double.parseDouble(tab.get(i).get("Latitude")),Double.parseDouble(tab.get(i).get("Longitude")));
             String nomEntreprise = tab.get(i).get("Nom");

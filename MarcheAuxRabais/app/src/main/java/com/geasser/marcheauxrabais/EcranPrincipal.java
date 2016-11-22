@@ -133,10 +133,10 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
 
     public static void updateTextView (){
 
-        if (LoginActivity.NameFbk.compareTo("Inconnu")==0)
-            textView.setText(LoginActivity.pseudo + " Nombre de pas en stock : " + (nbPas+pasSupp));
-        else
+        if (LoginActivity.NameFbk!=null)
             textView.setText(LoginActivity.NameFbk + " Nombre de pas en stock : " + (nbPas+pasSupp));
+        else
+            textView.setText(LoginActivity.pseudo + " Nombre de pas en stock : " + (nbPas+pasSupp));
     }
 
    public static void UpdatePas (int pas){

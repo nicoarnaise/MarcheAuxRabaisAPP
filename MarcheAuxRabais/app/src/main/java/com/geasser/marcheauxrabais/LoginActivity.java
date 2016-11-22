@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -43,17 +44,17 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     private static final String TAG = "SignInActivity";
     private LoginButton loginButton;
     private CallbackManager callbackManager;
-    private TextView info;
+  //  private TextView info;
     private GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
     public static String pseudo=null;
     public static int IDuser=0;
-
-    static String NameFbk = "Inconnu";
+    static String NameFbk = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("Connexion");
 
         FacebookSdk.sdkInitialize(getApplicationContext());
         callbackManager = CallbackManager.Factory.create();
@@ -67,7 +68,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         final Button bRegisterHere = (Button) findViewById(R.id.bRegister);
         final TextView registerLink = (TextView) findViewById(R.id.tvRegisterHere);
         findViewById(R.id.sign_in_button).setOnClickListener(this);
-        info = (TextView) findViewById(R.id.info);
+     //   info = (TextView) findViewById(R.id.info);
         loginButton = (LoginButton) findViewById(R.id.login_button);
 
         // Si l'utilisateur est déjà connecté avec Facebook alors l'envoie à l'ecran principal.
@@ -94,7 +95,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                 final String password = etPassword.getText().toString();
 
                 if(testProfil(pseudo,password)){
-                    NameFbk="Inconnu";
+                    NameFbk = null;
                     Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
                     LoginActivity.this.startActivity(registerIntent);
                 }
@@ -136,12 +137,12 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 
             @Override
             public void onCancel() {
-                info.setText("Login attempt canceled.");
+              //  info.setText("Login attempt canceled.");
             }
 
             @Override
             public void onError(FacebookException e) {
-                info.setText("Login attempt failed.");
+             //   info.setText("Login attempt failed.");
             }
         });
 
@@ -206,7 +207,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
-            info.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
+           // info.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
             updateUI(true);
         } else {
             // Signed out, show unauthenticated UI.
@@ -222,7 +223,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             LoginActivity.this.startActivity(profil);
 
         } else {
-            info.setText(R.string.signed_out);
+            //info.setText(R.string.signed_out);
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
             //findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
         }
@@ -230,7 +231,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 
     public boolean testProfil(String username, String password){
 
-            ArrayList<HashMap<String,String>> tab = ControleurBdd.getInstance(this).selection("SELECT ID, UserName, MotDePasse FROM profil", ControleurBdd.BASE.INTERNE);
+            ArrayList<HashMap<String,String>> tab = ControleurBdd.getInstance(this).selection("SELECT ID, UserName, MotDePasse FROM profil", ControleurBdd.BASE.EXTERNE);
             // On affiche simplement le texte retourné.
             int i =0;
             while (i<tab.size()) {
