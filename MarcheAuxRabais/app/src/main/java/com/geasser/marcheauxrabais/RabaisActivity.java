@@ -25,6 +25,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         ControleurBdd control = ControleurBdd.getInstance(this);
         //Récupération de la liste des personnes
         /*ArrayList<Rabais> listR = Rabais.getAListOfRabais();*/
+        control.synchronize();
         ArrayList<Rabais> listR = toRabais(control.selection("SELECT ID, Image, Nom, Cout, Description FROM rabais", ControleurBdd.BASE.INTERNE));
 
         //Création et initialisation de l'Adapter pour les personnes
@@ -76,7 +77,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         Toast.makeText(this,"Achat en cours ...",Toast.LENGTH_SHORT).show();
         if(selected.getAlpha() == 1){
             ControleurBdd control = ControleurBdd.getInstance(this);
-            control.synchronize();
+            control.syncProfil();
             HashMap<String,String> map = control.selection("SELECT Pas FROM profil WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE).get(0);
             int pas = Integer.parseInt(map.get("Pas"));
             pas -= item.prix;
@@ -92,9 +93,10 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
             }catch(Exception e){
                 control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",1)", ControleurBdd.BASE.EXTERNE);
             }
-            control.synchronize();
+            control.syncProfil();
             selected.setAlpha(0.1f);
-            Toast.makeText(this,item.titre+" acheté pour" + LoginActivity.IDuser,Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,item.titre+" acheté !",Toast.LENGTH_SHORT).show();
+            EcranPrincipal.UpdatePas(pas);
         }else{
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
         }

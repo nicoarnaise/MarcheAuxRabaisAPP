@@ -7,34 +7,33 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.os.AsyncTask;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
+
 
 public class EcranPrincipal extends Activity implements SensorEventListener {
 
-    private TextView textView;
+    static TextView textView;
+    static int nbPas;
+    static int pasSupp=0;
     private SensorManager mSensorManager;
     private Sensor mStepCounterSensor;
-    private int nbPas;
-    private int nbStock;
-    private int nbTot;
     private ControleurBdd control;
+
+    private String NOMBRE_PAS = "nombre_pas";
+    private String PAS_SUPPLEMENTAIRES = "pas_supplementaires";
 
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
-        ControleurBdd.getInstance(this).synchronize();
         setContentView(R.layout.activity_ecran_principal);
+        control = ControleurBdd.getInstance(this);
+        updateValuesFromBundle(savedInstanceState);
+
         textView = (TextView) findViewById(R.id.textView);
         final Button bCarte = (Button) findViewById(R.id.btcarte);
         final Button bChallenges = (Button) findViewById(R.id.btchallenges);
@@ -42,20 +41,9 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         final Button bRabais = (Button) findViewById(R.id.btrabais);
         final Button bSettings = (Button) findViewById(R.id.btSettings);
 
-        control = ControleurBdd.getInstance(this);
-        ArrayList<HashMap<String, String>> tab = control.selection("SELECT Pas FROM profil WHERE UserName='"+LoginActivity.pseudo+"';",ControleurBdd.BASE.INTERNE);
 
-        if(tab!=null) {
+        updateTextView();
 
-            nbPas = Integer.parseInt(tab.get(0).get("Pas"));
-            nbStock = 0;
-            //nbStock= Integer.parseInt(tab.get(0).get("Stock"));
-            nbTot = nbStock + nbPas;
-            textView.setText("Pas en stock " + nbTot);
-        }else{
-            nbTot = 0;
-            textView.setText("Erreur bdd interne");
-        }
 
         bCarte.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,28 +90,6 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         mStepCounterSensor = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
-        // la partie en commentaire ci dessous envoie une requete à la BDD externe et affiche le résultat de la requete, non formaté.
-        /*try {
-            // On crée une AsyncTask car l'accès à un site internet ne peut se faire que de manière asynchrone sous Android
-            AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM entreprises");
-            Toast.makeText(this,"Connection ...",Toast.LENGTH_LONG).show();
-            // task.get() permet de récupérer la réponse de la base de donnée.
-            String rep = task.get();
-            ArrayList<HashMap<String,String>> tab = BddExt.formate(rep);
-            // après, on affiche simplement le texte retourné.
-            textView.setText(tab.toString());
-            Toast.makeText(this,"Terminé",Toast.LENGTH_LONG).show();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }*/
-        /*
-        ControleurBdd control = ControleurBdd.getInstance(this);
-        control.open();
-        control.synchronize();
-        ArrayList<HashMap<String, String>> s = control.selection("SELECT * FROM entreprises");
-        textView.setText(s.get(0).get("Nom"));*/
     }
 
     // onResume est une fonction appellée quand l'activité est au sommet de la pile d'activité donc ne fonctionne pas en arrière-plan.
@@ -148,28 +114,70 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
 
         if (values.length > 0) {
           //  value = (int) values[0];
-            nbTot++;
+            pasSupp++;
         }
 
-        if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-            textView.setText(LoginActivity.pseudo + " Step Counter Detected : " + nbTot);
-        }
+        if (sensor.getType() == Sensor.TYPE_STEP_COUNTER)
+            updateTextView();
+            control.execute("UPDATE profil SET Stock='" + pasSupp + "' WHERE UserName='" + LoginActivity.pseudo + "';", ControleurBdd.BASE.INTERNE);
 
-
-       // control.execute("INSERT INTO profil (UserName,MotDePasse) VALUES ('Paul','test');",ControleurBdd.BASE.INTERNE);
-
-        //enregistre le nombre de pas dans la bdd interne tous les 10pas
-        if(nbTot%10==0)
-            control.execute("UPDATE profil SET Pas='" + nbTot + "' WHERE UserName='" + LoginActivity.pseudo + "';", ControleurBdd.BASE.INTERNE);
-
-       // control.selection("SELECT Pas FROM profil WHERE UserName='Paul';",ControleurBdd.BASE.INTERNE);
+        //Enregistre le nombre de pas dans la bdd interne tous les 10pas
+        //   if(nbTot%10==0)
 
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Obligatoire quand SensorEventListener est implémeté
+        // Obligatoire quand SensorEventListener est implémenté
     }
+
+    public static void updateTextView (){
+
+        if (LoginActivity.NameFbk.compareTo("Inconnu")==0)
+            textView.setText(LoginActivity.pseudo + " Nombre de pas en stock : " + (nbPas+pasSupp));
+        else
+            textView.setText(LoginActivity.NameFbk + " Nombre de pas en stock : " + (nbPas+pasSupp));
+    }
+
+   public static void UpdatePas (int pas){
+        nbPas=pas;
+        pasSupp=0;
+        updateTextView();
+    }
+
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putInt(NOMBRE_PAS,nbPas);
+        savedInstanceState.putInt(PAS_SUPPLEMENTAIRES,pasSupp);
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    private void updateValuesFromBundle(Bundle savedInstanceState) {
+        if (savedInstanceState != null) {
+
+            if (savedInstanceState.keySet().contains(NOMBRE_PAS)) {
+                nbPas = savedInstanceState.getInt(NOMBRE_PAS);
+            }
+
+            if (savedInstanceState.keySet().contains(PAS_SUPPLEMENTAIRES)) {
+                // Since LOCATION_KEY was found in the Bundle, we can be sure that
+                // mCurrentLocationis not null.
+                pasSupp = savedInstanceState.getInt(PAS_SUPPLEMENTAIRES);
+            }
+        }
+        else{
+
+            // Synchronisation de la table profil des BDD interne et externe
+            control.syncProfil();
+            ArrayList<HashMap<String, String>> tab = control.selection("SELECT Pas FROM profil WHERE UserName='"+LoginActivity.pseudo+"';",ControleurBdd.BASE.INTERNE);
+
+            if(tab!=null)
+                nbPas = Integer.parseInt(tab.get(0).get("Pas"));
+            else
+                nbPas = 0;
+        }
+    }
+
+
 
 //    // Empeche le retour arrière
 //    @Override

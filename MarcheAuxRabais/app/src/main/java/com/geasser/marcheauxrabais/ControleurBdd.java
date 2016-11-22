@@ -161,6 +161,37 @@ public class ControleurBdd {
         // recalcul lvl
 
         // TODO : TESTS !
+        syncProfil();
+
+        //TODO mise à jour des autres tables (historique et liens)
+        // mise à jour histachat
+        try{
+            ArrayList<HashMap<String,String>> liste = selection("SELECT * FROM histachat WHERE Utilisateur="+LoginActivity.IDuser,BASE.EXTERNE);
+            execute("DELETE FROM histachat WHERE Utilisateur="+LoginActivity.IDuser, BASE.INTERNE);
+            for(HashMap<String,String> map : liste){
+                ContentValues value = new ContentValues();
+                for(String key : map.keySet()){
+                    value.put(key,map.get(key));
+                }
+                mDb.insertWithOnConflict("histachat",null,value,SQLiteDatabase.CONFLICT_REPLACE);
+            }
+            //mise à jour rabaisprofil
+            //TODO a modifier
+            liste = selection("SELECT * FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser,BASE.EXTERNE);
+            execute("DELETE FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser, BASE.INTERNE);
+            for(HashMap<String,String> map : liste){
+                ContentValues value = new ContentValues();
+                for(String key : map.keySet()){
+                    value.put(key,map.get(key));
+                }
+                mDb.insertWithOnConflict("rabaisprofil",null,value,SQLiteDatabase.CONFLICT_REPLACE);
+            }
+        }catch (Exception e){
+
+        }
+    }
+
+    public void syncProfil(){
         try {
             ArrayList<HashMap<String,String>> profilOffline = selection("SELECT * FROM profil ORDER BY ID", BASE.INTERNE);
             String ids = "";
@@ -201,33 +232,6 @@ public class ControleurBdd {
             e.printStackTrace();
         } catch (ExecutionException e) {
             e.printStackTrace();
-        }
-
-        //TODO mise à jour des autres tables (historique et liens)
-        // mise à jour histachat
-        try{
-            ArrayList<HashMap<String,String>> liste = selection("SELECT * FROM histachat WHERE Utilisateur="+LoginActivity.IDuser,BASE.EXTERNE);
-            execute("DELETE FROM histachat WHERE Utilisateur="+LoginActivity.IDuser, BASE.INTERNE);
-            for(HashMap<String,String> map : liste){
-                ContentValues value = new ContentValues();
-                for(String key : map.keySet()){
-                    value.put(key,map.get(key));
-                }
-                mDb.insertWithOnConflict("histachat",null,value,SQLiteDatabase.CONFLICT_REPLACE);
-            }
-            //mise à jour rabaisprofil
-            //TODO a modifier
-            liste = selection("SELECT * FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser,BASE.EXTERNE);
-            execute("DELETE FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser, BASE.INTERNE);
-            for(HashMap<String,String> map : liste){
-                ContentValues value = new ContentValues();
-                for(String key : map.keySet()){
-                    value.put(key,map.get(key));
-                }
-                mDb.insertWithOnConflict("rabaisprofil",null,value,SQLiteDatabase.CONFLICT_REPLACE);
-            }
-        }catch (Exception e){
-
         }
     }
 

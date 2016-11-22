@@ -1,26 +1,24 @@
 package com.geasser.marcheauxrabais;
 
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.Profile;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
@@ -31,15 +29,13 @@ import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-import static android.R.attr.data;
-import static com.geasser.marcheauxrabais.R.id.textView;
-import static com.google.android.gms.common.internal.safeparcel.SafeParcelable.NULL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+
 
 public class LoginActivity extends AppCompatActivity implements  GoogleApiClient.OnConnectionFailedListener,
         View.OnClickListener{
@@ -52,6 +48,8 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     private static final int RC_SIGN_IN = 9001;
     public static String pseudo=null;
     public static int IDuser=0;
+
+    static String NameFbk = "Inconnu";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +73,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         // Si l'utilisateur est déjà connecté avec Facebook alors l'envoie à l'ecran principal.
         if ( AccessToken.getCurrentAccessToken()!=null){
             pseudo = AccessToken.getCurrentAccessToken().getUserId();
+            NameFbk = Profile.getCurrentProfile().getName();
             IDuser=Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT ID FROM profil WHERE UserName='"+pseudo+"'", ControleurBdd.BASE.INTERNE).get(0).get("ID"));
             Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
             LoginActivity.this.startActivity(registerIntent);
@@ -95,6 +94,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                 final String password = etPassword.getText().toString();
 
                 if(testProfil(pseudo,password)){
+                    NameFbk="Inconnu";
                     Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
                     LoginActivity.this.startActivity(registerIntent);
                 }
@@ -103,6 +103,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                 }
             }
         });
+
 
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -114,6 +115,12 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 //                                "Auth Token: "
 //                                + loginResult.getAccessToken().getToken()
 //                );
+
+
+
+                NameFbk = Profile.getCurrentProfile().getName();
+
+
 
                 // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal
                 if (testProfil(loginResult.getAccessToken().getUserId(),"null")){
