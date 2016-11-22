@@ -14,27 +14,50 @@
         android:id="@+id/LL_Show">
 
         <ImageView
-            android:layout_width="match_parent"
+            android:layout_width="98dp"
             android:layout_height="match_parent"
             app:srcCompat="@mipmap/ic_launcher"
-            android:id="@+id/imageRabais"
-            android:layout_weight="5" />
-
-        <TextView
-            android:text="Titre du Rabais"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/titreRabais"
-            android:gravity="center_vertical"
-            android:paddingLeft="10dp"
-            android:layout_weight="3"
-            android:paddingRight="10dp" />
+            android:id="@+id/imageRabais" />
 
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="5"
+            android:id="@+id/LL_Activation">
+
+            <TextView
+                android:text="Activer le rabais"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/activation"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="5dp"
+                android:paddingTop="5dp"
+                android:elevation="0dp"
+                android:clickable="true"
+                android:contextClickable="true" />
+
+
+            <TextView
+                android:text="Titre du Rabais"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/titreRabais"
+                android:gravity="center_vertical"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:layout_weight="2" />
+
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="94dp"
+            android:layout_height="match_parent"
             android:id="@+id/LL_Achat">
 
             <ImageView
