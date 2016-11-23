@@ -10,4 +10,15 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.geasser.marcheauxrabais.SettingsActivity">
 
+
+    <Button
+        android:text="Deconnexion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="116dp"
+        android:id="@+id/button2"
+        android:layout_centerVertical="true"
+        android:layout_alignParentEnd="true" />
+
+
 </RelativeLayout>

@@ -10,6 +10,7 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,17 +36,26 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         updateValuesFromBundle(savedInstanceState);
 
         textView = (TextView) findViewById(R.id.textView);
-        final Button bCarte = (Button) findViewById(R.id.btcarte);
-        final Button bChallenges = (Button) findViewById(R.id.btchallenges);
-        final Button bProfil = (Button) findViewById(R.id.btprofil);
-        final Button bRabais = (Button) findViewById(R.id.btrabais);
+       // final ImageButton bCarte = (ImageButton) findViewById(R.id.btcarte);
+        final ImageButton bChallenges = (ImageButton) findViewById(R.id.btchallenges);
+        final ImageButton bProfil = (ImageButton) findViewById(R.id.btprofil);
+        final ImageButton bRabais = (ImageButton) findViewById(R.id.btrabais);
         final Button bSettings = (Button) findViewById(R.id.btSettings);
+        final ImageButton ibMaps = (ImageButton) findViewById(R.id.ibMaps);
 
 
         updateTextView();
 
 
-        bCarte.setOnClickListener(new View.OnClickListener() {
+//        bCarte.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                Intent MapsIntent = new Intent(EcranPrincipal.this, MapsActivity.class);
+//                EcranPrincipal.this.startActivity(MapsIntent);
+//            }
+//        });
+
+        ibMaps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent MapsIntent = new Intent(EcranPrincipal.this, MapsActivity.class);
@@ -133,10 +143,10 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
 
     public static void updateTextView (){
 
-        if (LoginActivity.NameFbk!=null)
-            textView.setText(LoginActivity.NameFbk + " Nombre de pas en stock : " + (nbPas+pasSupp));
-        else
-            textView.setText(LoginActivity.pseudo + " Nombre de pas en stock : " + (nbPas+pasSupp));
+//        if (LoginActivity.NameAPI !=null)
+//            textView.setText(LoginActivity.NameAPI + " Nombre de pas en stock : " + (nbPas+pasSupp));
+//        else
+//            textView.setText(LoginActivity.pseudo + " Nombre de pas en stock : " + (nbPas+pasSupp));
     }
 
    public static void UpdatePas (int pas){

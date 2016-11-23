@@ -7,7 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -17,8 +16,6 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.facebook.Profile;
 import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginResult;
@@ -29,12 +26,10 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.auth.api.signin.GoogleSignInResult;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 
 
@@ -45,11 +40,11 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     private LoginButton loginButton;
     private CallbackManager callbackManager;
   //  private TextView info;
-    private GoogleApiClient mGoogleApiClient;
+    private static GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
     public static String pseudo=null;
     public static int IDuser=0;
-    static String NameFbk = null;
+    static String NameAPI = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,13 +63,14 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         final Button bRegisterHere = (Button) findViewById(R.id.bRegister);
         final TextView registerLink = (TextView) findViewById(R.id.tvRegisterHere);
         findViewById(R.id.sign_in_button).setOnClickListener(this);
+     //   findViewById(R.id.bSignOut).setOnClickListener(this);
      //   info = (TextView) findViewById(R.id.info);
         loginButton = (LoginButton) findViewById(R.id.login_button);
 
         // Si l'utilisateur est déjà connecté avec Facebook alors l'envoie à l'ecran principal.
         if ( AccessToken.getCurrentAccessToken()!=null){
             pseudo = AccessToken.getCurrentAccessToken().getUserId();
-            NameFbk = Profile.getCurrentProfile().getName();
+            NameAPI = Profile.getCurrentProfile().getName();
             IDuser=Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT ID FROM profil WHERE UserName='"+pseudo+"'", ControleurBdd.BASE.INTERNE).get(0).get("ID"));
             Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
             LoginActivity.this.startActivity(registerIntent);
@@ -95,7 +91,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                 final String password = etPassword.getText().toString();
 
                 if(testProfil(pseudo,password)){
-                    NameFbk = null;
+                    NameAPI = null;
                     Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
                     LoginActivity.this.startActivity(registerIntent);
                 }
@@ -117,9 +113,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 //                                + loginResult.getAccessToken().getToken()
 //                );
 
-
-
-                NameFbk = Profile.getCurrentProfile().getName();
+                NameAPI = Profile.getCurrentProfile().getName();
 
 
 
@@ -166,6 +160,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         // Result returned from launching the Intent from GoogleSignInApi.getSignInIntent(...);
         if (requestCode == RC_SIGN_IN) {
             GoogleSignInResult result = Auth.GoogleSignInApi.getSignInResultFromIntent(data);
+
             handleSignInResult(result);
 
             // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal.
@@ -207,6 +202,8 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         if (result.isSuccess()) {
             // Signed in successfully, show authenticated UI.
             GoogleSignInAccount acct = result.getSignInAccount();
+            String personName = acct.getDisplayName();
+            NameAPI=personName;
            // info.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
             updateUI(true);
         } else {
@@ -218,14 +215,14 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     private void updateUI(boolean signedIn) {
         if (signedIn) {
             findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-            //findViewById(R.id.sign_out_and_disconnect).setVisibility(View.VISIBLE);
+         //   findViewById(R.id.bSignOut).setVisibility(View.VISIBLE);
             Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
             LoginActivity.this.startActivity(profil);
 
         } else {
             //info.setText(R.string.signed_out);
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-            //findViewById(R.id.sign_out_and_disconnect).setVisibility(View.GONE);
+          //  findViewById(R.id.bSignOut).setVisibility(View.GONE);
         }
     }
 
@@ -248,6 +245,20 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             }
         return false;
     }
+
+    public static void signOut() {
+        Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                new ResultCallback<Status>() {
+                    @Override
+                    public void onResult(Status status) {
+                        // [START_EXCLUDE]
+                       // updateUI(false);
+                        // [END_EXCLUDE]
+                    }
+                });
+    }
+
+
 
 }
 

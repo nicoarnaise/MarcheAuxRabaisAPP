@@ -1,5 +1,6 @@
 package com.geasser.marcheauxrabais;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -38,6 +39,8 @@ public class RegisterActivity extends AppCompatActivity {
                 if(tailleValideUsername(username) && tailleValidePassword(password) && confirmerPassword(password, passwordConfirm)) {
                     AsyncTask<String, Void, String> task = new BddExt().execute
                             ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+username+"','"+password+"');");
+                    Intent registerIntent = new Intent(RegisterActivity.this, LoginActivity.class);
+                    RegisterActivity.this.startActivity(registerIntent);
                 }
 
             }
