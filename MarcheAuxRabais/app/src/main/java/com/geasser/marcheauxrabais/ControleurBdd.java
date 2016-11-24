@@ -125,23 +125,6 @@ public class ControleurBdd {
             open();
         }
 
-        /*mDb.execSQL("DROP TABLE entreprises");
-        mDb.execSQL("DROP TABLE rabais");
-        mDb.execSQL("DROP TABLE secteurs");
-        mDb.execSQL("DROP TABLE succes");
-        mDb.execSQL("DROP TABLE succesprofil");
-        mDb.execSQL("DROP TABLE rabaisprofil");
-        mDb.execSQL("DROP TABLE historique");
-        mDb.execSQL("DROP TABLE histachat");
-        mDb.execSQL(CREATE_TABLE_ENTREPRISES);
-        mDb.execSQL(CREATE_TABLE_RABAIS);
-        mDb.execSQL(CREATE_TABLE_SECTEURS);
-        mDb.execSQL(CREATE_TABLE_SUCCES);
-        mDb.execSQL(CREATE_TABLE_SUCCESPROFIL);
-        mDb.execSQL(CREATE_TABLE_RABAISPROFIL);
-        mDb.execSQL(CREATE_TABLE_HISTORIQUE);
-        mDb.execSQL(CREATE_TABLE_HISTACHAT);*/
-
         // Importation des tables en ligne
         // --------------------------------
 
@@ -164,9 +147,16 @@ public class ControleurBdd {
         syncProfil();
 
         //TODO mise à jour des autres tables (historique et liens)
+        syncHistAchat();
+        syncRabaisProfil();
+
+    }
+
+    public void syncHistAchat(){
         // mise à jour histachat
-        try{
-            ArrayList<HashMap<String,String>> liste = selection("SELECT * FROM histachat WHERE Utilisateur="+LoginActivity.IDuser,BASE.EXTERNE);
+
+        ArrayList<HashMap<String,String>> liste = selection("SELECT * FROM histachat WHERE Utilisateur="+LoginActivity.IDuser,BASE.EXTERNE);
+        if(liste != null){
             execute("DELETE FROM histachat WHERE Utilisateur="+LoginActivity.IDuser, BASE.INTERNE);
             for(HashMap<String,String> map : liste){
                 ContentValues value = new ContentValues();
@@ -175,67 +165,142 @@ public class ControleurBdd {
                 }
                 mDb.insertWithOnConflict("histachat",null,value,SQLiteDatabase.CONFLICT_REPLACE);
             }
-            //mise à jour rabaisprofil
-            //TODO a modifier
-            liste = selection("SELECT * FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser,BASE.EXTERNE);
-            execute("DELETE FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser, BASE.INTERNE);
-            for(HashMap<String,String> map : liste){
-                ContentValues value = new ContentValues();
-                for(String key : map.keySet()){
-                    value.put(key,map.get(key));
-                }
-                mDb.insertWithOnConflict("rabaisprofil",null,value,SQLiteDatabase.CONFLICT_REPLACE);
-            }
-        }catch (Exception e){
-
         }
+    }
+
+    public void syncEntreprise(){
+        importation("entreprises");
+        importation("secteurs");
+    }
+
+    public void syncRabais(){
+        importation("rabais");
+    }
+
+    public void syncSucces(){
+        importation("succes");
     }
 
     public void syncProfil(){
 
-            ArrayList<HashMap<String,String>> profilOffline = selection("SELECT * FROM profil WHERE ID="+LoginActivity.IDuser, BASE.INTERNE);
-            String ids = "ID="+LoginActivity.IDuser;
-                try {
-                    AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM profil WHERE "+ids);
-                    ArrayList<HashMap<String,String>> profilOnline = BddExt.formate(task.get(),contexte);
-                    if(profilOffline != null){
-                        for(int i = 0; i<profilOnline.size();i++){
-                            Integer pas = Integer.parseInt(profilOnline.get(i).get("Pas"))+Integer.parseInt(profilOffline.get(i).get("Stock"));
-                            profilOnline.get(i).remove("Pas");
-                            profilOffline.get(i).remove("Pas");
-                            profilOnline.get(i).put("Pas",pas.toString());
-                            profilOffline.get(i).put("Pas",pas.toString());
-                            pas = Integer.parseInt(profilOnline.get(i).get("Exp"))+Integer.parseInt(profilOffline.get(i).get("Stock"));
-                            profilOnline.get(i).remove("Exp");
-                            profilOnline.get(i).put("Exp",pas.toString());
-                            profilOffline.get(i).remove("Stock");
-                            profilOffline.get(i).put("Stock","0");
+        ArrayList<HashMap<String,String>> profilOffline = selection("SELECT * FROM profil WHERE ID="+LoginActivity.IDuser, BASE.INTERNE);
+        String id = "ID="+LoginActivity.IDuser;
+        try {
+            AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM profil WHERE "+id);
+            ArrayList<HashMap<String,String>> profilOnline = BddExt.formate(task.get(),contexte);
+            if(profilOffline != null){
+                    Integer pas = Integer.parseInt(profilOnline.get(0).get("Pas"))+Integer.parseInt(profilOffline.get(0).get("Stock"));
+                    profilOnline.get(0).remove("Pas");
+                    profilOffline.get(0).remove("Pas");
+                    profilOnline.get(0).put("Pas",pas.toString());
+                    profilOffline.get(0).put("Pas",pas.toString());
+                    pas = Integer.parseInt(profilOnline.get(0).get("Exp"))+Integer.parseInt(profilOffline.get(0).get("Stock"));
+                    profilOnline.get(0).remove("Exp");
+                    profilOnline.get(0).put("Exp",pas.toString());
+                    profilOffline.get(0).remove("Stock");
+                    profilOffline.get(0).put("Stock","0");
 
-                            // update base externe
-                            for(String key : profilOnline.get(i).keySet()) {
-                                execute("UPDATE profil" +
-                                    " SET " + key + " = '" + profilOnline.get(i).get(key) +
-                                    "' WHERE ID = " + profilOnline.get(i).get("ID"),BASE.EXTERNE);
-                            }
-                            // update base interne
-                            for(String key : profilOffline.get(i).keySet()) {
-                                execute("UPDATE profil" +
-                                    " SET " + key + " = '" + profilOffline.get(i).get(key) +
-                                    "' WHERE ID = " + profilOffline.get(i).get("ID"),BASE.INTERNE);
-                            }
+                    // update base externe
+                    for(String key : profilOnline.get(0).keySet()) {
+                        execute("UPDATE profil" +
+                                " SET " + key + " = '" + profilOnline.get(0).get(key) +
+                                "' WHERE ID = " + profilOnline.get(0).get("ID"),BASE.EXTERNE);
+                    }
+                    // update base interne
+                    for(String key : profilOffline.get(0).keySet()) {
+                        execute("UPDATE profil" +
+                                " SET " + key + " = '" + profilOffline.get(0).get(key) +
+                                "' WHERE ID = " + profilOffline.get(0).get("ID"),BASE.INTERNE);
+                    }
 
-                        //TODO recalculer le niveau
+                    //TODO recalculer le niveau
+            }else{
+                execute("INSERT INTO profil (ID,UserName,MotDePasse,Lvl,Exp,Pas) VALUES ("+profilOnline.get(0).get("ID")+",'"+profilOnline.get(0).get("UserName")+"','"+profilOnline.get(0).get("MotDePasse")+"',"+profilOnline.get(0).get("Lvl")+","+profilOnline.get(0).get("Exp")+","+profilOnline.get(0).get("Pas")+")",BASE.INTERNE);
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } catch (ExecutionException e) {
+            e.printStackTrace();
+        }
+    }
+    private void syncRabaisProfil() {
+        //mise à jour rabaisprofil
+
+        // cration des index a mettre a jour
+        ArrayList<Integer> interneIDRPaMaj = new ArrayList<>();
+        ArrayList<Integer> externeIDRPaMaj = new ArrayList<>();
+
+        // recuperation des dates de derniere mise a jour de chaque ligne dans rabaisprofil pour chaque base de donnees.
+        ArrayList<HashMap<String,String>> interneRP = selection("SELECT rp.ID, rp.Disponible, ha.Date FROM rabaisprofil rp, histachat ha WHERE rp.IDProfil = ha.Utilisateur AND rp.IDRabais = ha.Rabais AND rp.IDProfil="+LoginActivity.IDuser+" GROUP BY rp.ID ORDER BY ha.Date DESC",BASE.INTERNE);
+        ArrayList<HashMap<String,String>> externeRP = selection("SELECT rp.ID, rp.Disponible, ha.Date FROM rabaisprofil rp, histachat ha WHERE rp.IDProfil = ha.Utilisateur AND rp.IDRabais = ha.Rabais AND rp.IDProfil="+LoginActivity.IDuser+" GROUP BY rp.ID ORDER BY ha.Date DESC",BASE.EXTERNE);
+        if(interneRP!=null){
+            if(externeRP!=null){
+                // on supprime toutes les lignes inchangees.
+                ArrayList<HashMap<String,String>> temp = new ArrayList<>(interneRP);
+                interneRP.removeAll(externeRP);
+                externeRP.removeAll(temp);
+                // on verifie ici que les tables different et que la mise a jour est necessaire.
+                if(interneRP.isEmpty() && !externeRP.isEmpty()) {
+                    // ce qui reste dans chacune sont les lignes qui different.
+                    // on cree une map avec comme cle l'id de la ligne et comme valeur la map de la ligne pour reduire la complexite du code.
+                    HashMap<Integer, HashMap<String, String>> idMapInterne = mapWithID(interneRP);
+                    // puis on itere sur chaque ligne de la base externe pour verifier les changements.
+                    // il y a forcement plus de ligne dans l'externe que dans l'interne puisque l'on cree la ligne lors de l'achat dans l'externe.
+                    for (HashMap<String, String> ligne : externeRP) {
+                        // on verifie si la ligne existe dans la base interne
+                        if (!idMapInterne.containsKey(Integer.parseInt(ligne.get("ID")))) {
+                            // on l'ajoute si elle n'existe pas
+                            syncRabaisProfilVers(Integer.parseInt(ligne.get("ID")), BASE.EXTERNE, BASE.INTERNE);
+                        } else {
+                            // sinon on recupere la ligne corespondante
+                            HashMap<String, String> ligneInterne = idMapInterne.get(Integer.parseInt(ligne.get("ID")));
+                            // puis on compare les dates :
+                            if (Integer.parseInt(ligne.get("Date")) <= Integer.parseInt(ligneInterne.get("Date"))) {
+                                // on est ici possiblement sur l'appareil d'achat
+                                if (ligneInterne.get("Disponible").equals("1") && ligne.get("Disponible").equals("0")) {
+                                    // on a achete le rabais sur cet appareil mais la base externe n'est pas encore a jour.
+                                    execute("UPDATE rabaisprofil SET Disponible=2 WHERE ID=" + ligne.get("ID"), BASE.EXTERNE);
+                                } else if (ligneInterne.get("Disponible").equals("3")) {
+                                    // on a deja active le rabais, donc on le rend a nouveau dsponible pour tous les appareils
+                                    execute("UPDATE rabaisprofil SET Disponible=0 WHERE ID=" + ligne.get("ID"), BASE.EXTERNE);
+                                    execute("UPDATE rabaisprofil SET Disponible=0 WHERE ID=" + ligne.get("ID"), BASE.INTERNE);
+                                } else if (ligneInterne.get("Disponible").equals("0") && ligne.get("Disponible").equals("2")) {
+                                    // on est sur un autre appareil que celui de l'achat donc on rend le rabais indisponible
+                                    execute("UPDATE rabaisprofil SET Disponible=2 WHERE ID=" + ligne.get("ID"), BASE.INTERNE);
+                                } else if (ligneInterne.get("Disponible").equals("2") && ligne.get("Disponible").equals("0")) {
+                                    // le rabais est de nouveau disponible pour tous les appareils donc on le rend disponible en interne
+                                    execute("UPDATE rabaisprofil SET Disponible=2 WHERE ID=" + ligne.get("ID"), BASE.INTERNE);
+                                }
+                            } else {
+                                // la ligne sur l'appareil est plus ancienne, donc on ne peut pas etre sur l'appareil d'achat
+                                // donc on recupere la valeur de la base externe comme valeur de reference
+                                syncRabaisProfilVers(Integer.parseInt(ligne.get("ID")), BASE.EXTERNE, BASE.INTERNE);
+                            }
+                        }
                     }
-                    }else{
-                        execute("INSERT INTO profil (ID,UserName,MotDePasse,Lvl,Exp,Pas) VALUES ("+profilOnline.get(0).get("ID")+",'"+profilOnline.get(0).get("UserName")+"','"+profilOnline.get(0).get("MotDePasse")+"',"+profilOnline.get(0).get("Lvl")+","+profilOnline.get(0).get("Exp")+","+profilOnline.get(0).get("Pas")+")",BASE.INTERNE);
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                } catch (ExecutionException e) {
-                    e.printStackTrace();
                 }
+            }
+        }else{
+            // on ajoute toutes les lignes de la base externe a la base interne.
+            for(HashMap<String,String> map : externeRP){
+                syncRabaisProfilVers(Integer.parseInt(map.get("ID")),BASE.EXTERNE,BASE.INTERNE);
+            }
+        }
+    }
 
+    private void syncRabaisProfilVers(int idRP, BASE orig, BASE dest){
+        ArrayList<HashMap<String,String>> liste = selection("SELECT * FROM rabaisprofil WHERE ID="+idRP,orig);
+        // il n'y a qu'une ligne avec cet id donc on ne prend que la map de la premiere ligne
+        HashMap<String,String> map = liste.get(0);
+        execute("INSERT OR REPLACE INTO rabaisprofil (ID, IDProfil,IDRabais,Disponible) VALUES ("+map.get("ID")+","+map.get("IDProfil")+","+map.get("IDRabais")+","+map.get("Disponible")+")", dest);
+    }
 
+    private HashMap<Integer,HashMap<String,String>> mapWithID(ArrayList<HashMap<String,String>> tableau){
+        HashMap<Integer,HashMap<String,String>> tableauID = new HashMap<>();
+        for(HashMap<String,String> map : tableau){
+            tableauID.put(Integer.parseInt(map.get("ID")),map);
+        }
+        return tableauID;
     }
 
     /**
@@ -250,25 +315,20 @@ public class ControleurBdd {
      * @param tableName
      */
     private void importation(String tableName){
-        AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM "+tableName);
         if(mDb == null){
             open();
         }
-        mDb.delete(tableName,"ID > ?",new String[]{"0"});
-        try {
-            String rep = task.get();
-            ArrayList<HashMap<String,String>> tab = BddExt.formate(rep,contexte);
-            for(HashMap<String,String> map : tab){
+        ArrayList<HashMap<String,String>> tabExt = selection("SELECT * FROM "+tableName+" ORDER BY ID",BASE.EXTERNE);
+        ArrayList<HashMap<String,String>> tabInt = selection("SELECT * FROM "+tableName+" ORDER BY ID",BASE.INTERNE);
+        if(tabExt!=null &&(tabInt==null || !tabExt.equals(tabInt))){
+            mDb.delete(tableName,"ID > ?",new String[]{"0"});
+            for(HashMap<String,String> map : tabExt){
                 ContentValues value = new ContentValues();
                 for(String key : map.keySet()){
                     value.put(key,map.get(key));
                 }
                 mDb.insertWithOnConflict(tableName,null,value,SQLiteDatabase.CONFLICT_REPLACE);
             }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
         }
     }
 

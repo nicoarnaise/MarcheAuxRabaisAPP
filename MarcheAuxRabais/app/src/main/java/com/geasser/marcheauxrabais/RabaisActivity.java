@@ -144,7 +144,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
             }catch(Exception e){
                 control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",1)", ControleurBdd.BASE.EXTERNE);
             }
-            control.synchronize();
+            control.syncProfil();
             selected.setAlpha(0.1f);
             ((TextView)list.findViewWithTag(position).findViewById(R.id.activation)).setAlpha(1f);
             Toast.makeText(this,item.titre+" acheté !",Toast.LENGTH_SHORT).show();
