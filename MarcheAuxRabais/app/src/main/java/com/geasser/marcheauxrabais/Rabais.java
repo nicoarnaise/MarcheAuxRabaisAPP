@@ -14,10 +14,12 @@ public class Rabais {
     public int prix;
     public String description;
     public boolean disponible;
-    /*public boolean active;          // true si activé, false sinon
-    public Timer temps;
+    public boolean active;          // true si activé, false sinon
+
+    /*public Timer temps;
     public int timeLeft = 100000;
-*/
+    */
+
     public Rabais(int ID, String image, String titre, int prix, String description, boolean disponible, boolean active) {
         this.ID = ID;
         this.image = image;
@@ -25,7 +27,7 @@ public class Rabais {
         this.prix = prix;
         this.description = description;
         this.disponible = disponible;
-        //this.active = active;
+        this.active = active;
     }
 
     /**

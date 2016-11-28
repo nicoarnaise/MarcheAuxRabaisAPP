@@ -42,7 +42,8 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         final ImageButton bRabais = (ImageButton) findViewById(R.id.btrabais);
         final Button bSettings = (Button) findViewById(R.id.btSettings);
         final ImageButton ibMaps = (ImageButton) findViewById(R.id.ibMaps);
-
+        ControleurBdd control = ControleurBdd.getInstance(this);
+        control.execute("DELETE FROM histachat", ControleurBdd.BASE.INTERNE);
 
         updateTextView();
 

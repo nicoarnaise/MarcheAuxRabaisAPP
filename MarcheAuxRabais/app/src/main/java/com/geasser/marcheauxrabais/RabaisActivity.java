@@ -31,7 +31,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         ControleurBdd control = ControleurBdd.getInstance(this);
         //Récupération de la liste des personnes
         /*ArrayList<Rabais> listR = Rabais.getAListOfRabais();*/
-        control.synchronize();
+        control.syncRabaisProfil();
         ArrayList<Rabais> listR = toRabais(control.selection("SELECT ID, Image, Nom, Cout, Description FROM rabais", ControleurBdd.BASE.INTERNE));
 
         //Création et initialisation de l'Adapter pour les personnes
@@ -80,11 +80,11 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         },0,1000);*/
     }
 
-    protected void expiration(Rabais item){
+    /*protected void expiration(Rabais item){
         ControleurBdd control = ControleurBdd.getInstance(this);
         int idjoin=Integer.parseInt(control.selection("SELECT ID WHERE IDProfil="+LoginActivity.IDuser+", IDRabais="+item.ID, ControleurBdd.BASE.EXTERNE).get(0).get("ID"));
         control.execute("UPDATE rabaisprofil SET Disponible=0 WHERE ID="+idjoin, ControleurBdd.BASE.INTERNE);
-    }
+    }*/
 
     private ArrayList<Rabais> toRabais(ArrayList<HashMap<String, String>> selection) {
         ArrayList<Rabais> listR = new ArrayList<>();
@@ -100,14 +100,14 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
             }catch(Exception e){
                 verifAchat=true;
             }
-            /*try{
+            try{
                 rep = Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT Disponible FROM rabaisprofil WHERE IDprofil="+LoginActivity.IDuser+" AND IDRabais="+map.get("ID"), ControleurBdd.BASE.INTERNE).get(0).get("Disponible"));
-                activable=(rep!=2);
+                activable=(rep==1);
             }catch(Exception e){
                 activable=false;
-            }*/
+            }
             dispo = (Integer.parseInt(map.get("Cout"))<pas+stock) && verifAchat;
-            listR.add(new Rabais(Integer.parseInt(map.get("ID")),map.get("Image"),map.get("Nom"),Integer.parseInt(map.get("Cout")),map.get("Description"),dispo, false));
+            listR.add(new Rabais(Integer.parseInt(map.get("ID")),map.get("Image"),map.get("Nom"),Integer.parseInt(map.get("Cout")),map.get("Description"),dispo, activable));
         }
         return listR;
     }
@@ -135,16 +135,28 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
             control.execute("UPDATE profil SET Pas="+pas+" WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE);
 
             //mise à jour de la table histachat
-            control.execute("INSERT INTO histachat (Utilisateur,Date,Rabais) VALUES ("+LoginActivity.IDuser+","+(new Date()).getTime()+","+item.ID+")", ControleurBdd.BASE.EXTERNE);
+            long date = new Date().getTime();
+            control.execute("INSERT INTO histachat (Utilisateur,Date,Rabais) VALUES ("+LoginActivity.IDuser+","+date+","+item.ID+")", ControleurBdd.BASE.EXTERNE);
+            control.execute("INSERT INTO histachat (Utilisateur,Date,Rabais) VALUES ("+LoginActivity.IDuser+","+date+","+item.ID+")", ControleurBdd.BASE.INTERNE);
 
             // mise à jour de la table rabaisprofil
-            try{
-                int idjoin=Integer.parseInt(control.selection("SELECT ID WHERE IDProfil="+LoginActivity.IDuser+", IDRabais="+item.ID, ControleurBdd.BASE.EXTERNE).get(0).get("ID"));
-                control.execute("UPDATE rabaisprofil SET Disponible=1 WHERE ID="+idjoin, ControleurBdd.BASE.EXTERNE);
-            }catch(Exception e){
-                control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",1)", ControleurBdd.BASE.EXTERNE);
+
+            ArrayList<HashMap<String,String>> ret = control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser+" AND IDRabais="+item.ID, ControleurBdd.BASE.EXTERNE);
+            if(ret!=null){
+                int idjoin = Integer.parseInt(ret.get(0).get("ID"));
+                control.execute("UPDATE rabaisprofil SET Disponible=2 WHERE ID="+idjoin, ControleurBdd.BASE.EXTERNE);
+            }else{
+                control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",2)", ControleurBdd.BASE.EXTERNE);
+            }
+            ret = control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser+" AND IDRabais="+item.ID, ControleurBdd.BASE.INTERNE);
+            if(ret!=null){
+                int idjoin = Integer.parseInt(ret.get(0).get("ID"));
+                control.execute("UPDATE rabaisprofil SET Disponible=1 WHERE ID="+idjoin, ControleurBdd.BASE.INTERNE);
+            }else{
+                control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",1)", ControleurBdd.BASE.INTERNE);
             }
             control.syncProfil();
+            control.syncRabaisProfil();
             selected.setAlpha(0.1f);
             ((TextView)list.findViewWithTag(position).findViewById(R.id.activation)).setAlpha(1f);
             Toast.makeText(this,item.titre+" acheté !",Toast.LENGTH_SHORT).show();
@@ -154,26 +166,23 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         }
     }
 
-/*    public void onClickActivate(Rabais item, int position){
+    public void onClickActivate(Rabais item, int position){
         ListView list = (ListView)findViewById(R.id.ListView01);
         TextView selected = (TextView)list.findViewWithTag(position).findViewById(R.id.activation);
         Toast.makeText(this,"Activation en cours ...",Toast.LENGTH_SHORT).show();
         if(selected.getAlpha() == 1){
             item.active = true;
             ControleurBdd control = ControleurBdd.getInstance(this);
-            item.startTimer();
-            // mise à jour de la table rabaisprofil
             try{
-                int idjoin=Integer.parseInt(control.selection("SELECT ID WHERE IDProfil="+LoginActivity.IDuser+", IDRabais="+item.ID, ControleurBdd.BASE.EXTERNE).get(0).get("ID"));
-                control.execute("UPDATE rabaisprofil SET Disponible=2 WHERE ID="+idjoin, ControleurBdd.BASE.EXTERNE);
+                int idjoin=Integer.parseInt(control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser+" AND IDRabais="+item.ID, ControleurBdd.BASE.INTERNE).get(0).get("ID"));
+                control.execute("UPDATE rabaisprofil SET Disponible=3 WHERE ID="+idjoin, ControleurBdd.BASE.INTERNE);
+                selected.setText("Rabais activé !!");
             }catch(Exception e){
                 Toast.makeText(this, "Erreur d'activation",Toast.LENGTH_SHORT).show();
             }
-            control.synchronize();
-            selected.setAlpha(0.1f);
-            Toast.makeText(this,item.titre+" acheté pour" + LoginActivity.IDuser,Toast.LENGTH_SHORT).show();
+            control.syncRabaisProfil();
         }else{
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
         }
-    }*/
+    }
 }

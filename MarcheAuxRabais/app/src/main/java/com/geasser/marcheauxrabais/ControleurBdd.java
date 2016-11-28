@@ -223,12 +223,8 @@ public class ControleurBdd {
             e.printStackTrace();
         }
     }
-    private void syncRabaisProfil() {
+    public void syncRabaisProfil() {
         //mise à jour rabaisprofil
-
-        // cration des index a mettre a jour
-        ArrayList<Integer> interneIDRPaMaj = new ArrayList<>();
-        ArrayList<Integer> externeIDRPaMaj = new ArrayList<>();
 
         // recuperation des dates de derniere mise a jour de chaque ligne dans rabaisprofil pour chaque base de donnees.
         ArrayList<HashMap<String,String>> interneRP = selection("SELECT rp.ID, rp.Disponible, ha.Date FROM rabaisprofil rp, histachat ha WHERE rp.IDProfil = ha.Utilisateur AND rp.IDRabais = ha.Rabais AND rp.IDProfil="+LoginActivity.IDuser+" GROUP BY rp.ID ORDER BY ha.Date DESC",BASE.INTERNE);
@@ -240,7 +236,7 @@ public class ControleurBdd {
                 interneRP.removeAll(externeRP);
                 externeRP.removeAll(temp);
                 // on verifie ici que les tables different et que la mise a jour est necessaire.
-                if(interneRP.isEmpty() && !externeRP.isEmpty()) {
+                if(!interneRP.isEmpty() && !externeRP.isEmpty()) {
                     // ce qui reste dans chacune sont les lignes qui different.
                     // on cree une map avec comme cle l'id de la ligne et comme valeur la map de la ligne pour reduire la complexite du code.
                     HashMap<Integer, HashMap<String, String>> idMapInterne = mapWithID(interneRP);
@@ -255,7 +251,9 @@ public class ControleurBdd {
                             // sinon on recupere la ligne corespondante
                             HashMap<String, String> ligneInterne = idMapInterne.get(Integer.parseInt(ligne.get("ID")));
                             // puis on compare les dates :
-                            if (Integer.parseInt(ligne.get("Date")) <= Integer.parseInt(ligneInterne.get("Date"))) {
+                            //long dateExt = Long.parseLong(ligne.get("Date"));
+                            //long dateInt = Long.parseLong(ligneInterne.get("Date"));
+                            //if (dateExt <= dateInt) {
                                 // on est ici possiblement sur l'appareil d'achat
                                 if (ligneInterne.get("Disponible").equals("1") && ligne.get("Disponible").equals("0")) {
                                     // on a achete le rabais sur cet appareil mais la base externe n'est pas encore a jour.
@@ -271,19 +269,21 @@ public class ControleurBdd {
                                     // le rabais est de nouveau disponible pour tous les appareils donc on le rend disponible en interne
                                     execute("UPDATE rabaisprofil SET Disponible=2 WHERE ID=" + ligne.get("ID"), BASE.INTERNE);
                                 }
-                            } else {
+                            /*} else {
                                 // la ligne sur l'appareil est plus ancienne, donc on ne peut pas etre sur l'appareil d'achat
                                 // donc on recupere la valeur de la base externe comme valeur de reference
                                 syncRabaisProfilVers(Integer.parseInt(ligne.get("ID")), BASE.EXTERNE, BASE.INTERNE);
-                            }
+                            }*/
                         }
                     }
                 }
             }
         }else{
-            // on ajoute toutes les lignes de la base externe a la base interne.
-            for(HashMap<String,String> map : externeRP){
-                syncRabaisProfilVers(Integer.parseInt(map.get("ID")),BASE.EXTERNE,BASE.INTERNE);
+            if(externeRP!=null) {
+                // on ajoute toutes les lignes de la base externe a la base interne.
+                for (HashMap<String, String> map : externeRP) {
+                    syncRabaisProfilVers(Integer.parseInt(map.get("ID")), BASE.EXTERNE, BASE.INTERNE);
+                }
             }
         }
     }

@@ -122,15 +122,19 @@ public class BddExt extends AsyncTask<String, Void, String> {
         s=s.replaceAll("\"","");
         s=s.substring(0,s.length()-1);
         String[] split = s.split("\\{");
-        for(String subStr : split){
-            subStr = subStr.substring(0,subStr.length()-2);
-            HashMap<String,String> map = new HashMap<String,String>();
-            String[] objets = subStr.split(",");
-            for(String objet : objets){
-                String[] cleVal = objet.split(":");
-                map.put(cleVal[0],cleVal[1]);
+        try {
+            for (String subStr : split) {
+                subStr = subStr.substring(0, subStr.length() - 2);
+                HashMap<String, String> map = new HashMap<String, String>();
+                String[] objets = subStr.split(",");
+                for (String objet : objets) {
+                    String[] cleVal = objet.split(":");
+                    map.put(cleVal[0], cleVal[1]);
+                }
+                tab.add(map);
             }
-            tab.add(map);
+        }catch(ArrayIndexOutOfBoundsException e){
+            return null;
         }
         return tab;
     }
