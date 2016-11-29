@@ -303,6 +303,10 @@ public class ControleurBdd {
         return tableauID;
     }
 
+    public void syncHistorique(){
+        // TODO à faire
+    }
+
     /**
      * permet la fermeture de l'acces a la base interne
      */
