@@ -9,6 +9,8 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -24,7 +26,7 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
     private SensorManager mSensorManager;
     private Sensor mStepCounterSensor;
     private ControleurBdd control;
-
+    private TextView pseudo;
     private String NOMBRE_PAS = "nombre_pas";
     private String PAS_SUPPLEMENTAIRES = "pas_supplementaires";
 
@@ -42,11 +44,11 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         final ImageButton bRabais = (ImageButton) findViewById(R.id.btrabais);
         final Button bSettings = (Button) findViewById(R.id.btSettings);
         final ImageButton ibMaps = (ImageButton) findViewById(R.id.ibMaps);
+        pseudo = (TextView) findViewById(R.id.Pseudo);
         ControleurBdd control = ControleurBdd.getInstance(this);
         control.execute("DELETE FROM histachat", ControleurBdd.BASE.INTERNE);
 
-        updateTextView();
-
+        miseAJour();
 
 //        bCarte.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -61,12 +63,21 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
             public void onClick(View v) {
                 Intent MapsIntent = new Intent(EcranPrincipal.this, MapsActivity.class);
                 EcranPrincipal.this.startActivity(MapsIntent);
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                ibMaps.startAnimation(animation);
+
             }
         });
 
         bChallenges.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+               bChallenges.startAnimation(animation);
                 Intent ChallengeIntent = new Intent(EcranPrincipal.this, ChallengeActivity.class);
                 EcranPrincipal.this.startActivity(ChallengeIntent);
             }
@@ -75,6 +86,10 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         bProfil.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                bProfil.startAnimation(animation);
                 Intent profilIntent = new Intent(EcranPrincipal.this, ProfilActivity.class);
                 EcranPrincipal.this.startActivity(profilIntent);
             }
@@ -83,6 +98,10 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         bRabais.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                bRabais.startAnimation(animation);
                 Intent RabaisIntent = new Intent(EcranPrincipal.this, RabaisActivity.class);
                 EcranPrincipal.this.startActivity(RabaisIntent);
             }
@@ -91,6 +110,10 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         bSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                ibMaps.startAnimation(animation);
                 Intent SettingsIntent = new Intent(EcranPrincipal.this, SettingsActivity.class);
                 EcranPrincipal.this.startActivity(SettingsIntent);
             }
@@ -126,6 +149,7 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         if (values.length > 0) {
           //  value = (int) values[0];
             pasSupp++;
+            miseAJour();
         }
 
         if (sensor.getType() == Sensor.TYPE_STEP_COUNTER)
@@ -181,6 +205,7 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
             control.syncProfil();
             ArrayList<HashMap<String, String>> tab = control.selection("SELECT Pas FROM profil WHERE UserName='"+LoginActivity.pseudo+"';",ControleurBdd.BASE.INTERNE);
 
+
             if(tab!=null)
                 nbPas = Integer.parseInt(tab.get(0).get("Pas"));
             else
@@ -188,11 +213,22 @@ public class EcranPrincipal extends Activity implements SensorEventListener {
         }
     }
 
+    private void miseAJour(){
+        ArrayList<HashMap<String, String>> tab = control.selection("SELECT Pas FROM profil WHERE UserName='"+LoginActivity.pseudo+"';",ControleurBdd.BASE.INTERNE);
+        if (LoginActivity.NameAPI!= null)
+            pseudo.setText(LoginActivity.NameAPI );
+        else
+            pseudo.setText(LoginActivity.pseudo);
+
+        pseudo.setText(pseudo.getText() + " : "+Integer.toString(nbPas+pasSupp) + " pas");
+        updateTextView();
+    }
 
 
-//    // Empeche le retour arrière
-//    @Override
-//    public void onBackPressed(){
-//
-//    }
+
+    // Empeche le retour arrière
+    @Override
+    public void onBackPressed(){
+
+    }
 }

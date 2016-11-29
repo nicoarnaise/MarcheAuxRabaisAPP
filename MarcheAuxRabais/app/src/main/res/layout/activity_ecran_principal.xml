@@ -5,19 +5,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.geasser.marcheauxrabais.EcranPrincipal">
+    tools:context="com.geasser.marcheauxrabais.EcranPrincipal"
+    tools:background="@color/cardview_light_background">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:theme="@style/AppTheme.AppBarOverlay">
+        android:theme="@style/AppTheme.AppBarOverlay"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:text="Pseudo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/Pseudo"
+            android:layout_weight="1"
+            android:textAlignment="center"
+            android:translationY="@dimen/activity_vertical_margin"
+            android:translationX="@dimen/activity_vertical_margin"
+            android:textColor="@color/cardview_light_background" />
 
         <Button
-            android:layout_gravity="right"
+            android:layout_gravity="right|center_vertical"
             android:layout_width="44dp"
             android:layout_height="40dp"
             android:id="@+id/btSettings"
-            android:background="@drawable/parametre" />
+            android:background="@drawable/parametre"
+            android:translationY="-10dp" />
 
     </android.support.design.widget.AppBarLayout>
 
@@ -37,7 +51,9 @@
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_centerHorizontal="true"
-        android:id="@+id/textView" />
+        android:id="@+id/textView"
+        android:text="sdfggyrfftyutf"
+        android:textColor="@android:color/transparent" />
 
         <ImageButton
         android:layout_width="wrap_content"
@@ -45,8 +61,7 @@
             android:id="@+id/btrabais"
             android:layout_alignParentBottom="true"
             android:layout_alignParentEnd="true"
-            android:layout_marginBottom="76dp"
-            android:src="@mipmap/caddie5"
+            android:src="@mipmap/caddie6"
             android:layout_below="@+id/textView"
             android:layout_toEndOf="@+id/textView"
             android:adjustViewBounds="false"
@@ -80,10 +95,10 @@
             android:adjustViewBounds="false"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true"
-            android:layout_marginTop="38dp"
+            android:layout_marginTop="20dp"
             android:layout_toStartOf="@+id/textView"
-            android:layout_above="@+id/textView"
-            android:scaleType="fitCenter" />
+            android:scaleType="fitCenter"
+            android:layout_above="@+id/textView" />
 
         <ImageButton
             android:layout_width="wrap_content"
@@ -91,14 +106,15 @@
             android:cropToPadding="false"
             android:id="@+id/btprofil"
             android:elevation="0dp"
+            android:background="@android:color/transparent"
             android:adjustViewBounds="false"
             android:scaleType="fitCenter"
-            android:src="@mipmap/profil"
-            android:background="@android:color/transparent"
+            android:src="@mipmap/profil3"
             android:layout_above="@+id/textView"
             android:layout_alignTop="@+id/ibMaps"
             android:layout_alignParentEnd="true"
             android:layout_toEndOf="@+id/textView" />
 
     </RelativeLayout>
+
 </android.support.design.widget.CoordinatorLayout>

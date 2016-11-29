@@ -70,7 +70,11 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         // Si l'utilisateur est déjà connecté avec Facebook alors l'envoie à l'ecran principal.
         if ( AccessToken.getCurrentAccessToken()!=null){
             pseudo = AccessToken.getCurrentAccessToken().getUserId();
-            NameAPI = Profile.getCurrentProfile().getName();
+            if( Profile.getCurrentProfile()!=null)
+                NameAPI = Profile.getCurrentProfile().getName();
+            else
+                NameAPI="Error";
+          //  NameAPI = Profile.getCurrentProfile().getName();
             IDuser=Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT ID FROM profil WHERE UserName='"+pseudo+"'", ControleurBdd.BASE.INTERNE).get(0).get("ID"));
             Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
             LoginActivity.this.startActivity(registerIntent);
@@ -112,10 +116,10 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 //                                "Auth Token: "
 //                                + loginResult.getAccessToken().getToken()
 //                );
-
-                NameAPI = Profile.getCurrentProfile().getName();
-
-
+                if( Profile.getCurrentProfile()!=null)
+                     NameAPI = Profile.getCurrentProfile().getName();
+                else
+                    NameAPI="Error";
 
                 // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal
                 if (testProfil(loginResult.getAccessToken().getUserId(),"null")){
@@ -128,6 +132,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                             ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+(loginResult.getAccessToken().getUserId()+"','null');"));
                 }
             }
+
 
             @Override
             public void onCancel() {
@@ -214,7 +219,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 
     private void updateUI(boolean signedIn) {
         if (signedIn) {
-            findViewById(R.id.sign_in_button).setVisibility(View.GONE);
+          //  findViewById(R.id.sign_in_button).setVisibility(View.GONE);
          //   findViewById(R.id.bSignOut).setVisibility(View.VISIBLE);
             Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
             LoginActivity.this.startActivity(profil);
@@ -258,7 +263,11 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
                 });
     }
 
+    // Empeche le retour arrière
+    @Override
+    public void onBackPressed(){
 
+    }
 
 }
 
