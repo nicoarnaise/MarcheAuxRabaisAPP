@@ -6,6 +6,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -38,7 +39,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 
     private static final String TAG = "SignInActivity";
     private LoginButton loginButton;
-    private CallbackManager callbackManager;
+    public  CallbackManager callbackManager;
   //  private TextView info;
     private static GoogleApiClient mGoogleApiClient;
     private static final int RC_SIGN_IN = 9001;
@@ -106,16 +107,23 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
         });
 
 
+        etPassword.setOnKeyListener(new View.OnKeyListener() {
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                // If the event is a key-down event on the "enter" button
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    bLogin.performClick();
+                    return true;
+                }
+                return false;
+            }
+        });
+
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
-//                info.setText(
-//                        "User ID: "
-//                                + loginResult.getAccessToken().getUserId()
-//                                + "\n" +
-//                                "Auth Token: "
-//                                + loginResult.getAccessToken().getToken()
-//                );
+                loginButton.setVisibility(View.INVISIBLE);
                 if( Profile.getCurrentProfile()!=null)
                      NameAPI = Profile.getCurrentProfile().getName();
                 else
