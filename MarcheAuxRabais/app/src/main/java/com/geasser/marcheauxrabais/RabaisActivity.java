@@ -32,6 +32,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         //Récupération de la liste des personnes
         /*ArrayList<Rabais> listR = Rabais.getAListOfRabais();*/
         control.syncRabaisProfil();
+        control.syncRabais();
         ArrayList<Rabais> listR = toRabais(control.selection("SELECT ID, Image, Nom, Cout, Description FROM rabais", ControleurBdd.BASE.INTERNE));
 
         //Création et initialisation de l'Adapter pour les personnes
