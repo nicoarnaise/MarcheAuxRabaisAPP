@@ -37,4 +37,10 @@ public class ProfilActivity extends AppCompatActivity implements  GoogleApiClien
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+
+    protected void onStop() {
+        EcranPrincipal.notificationManager.cancelAll();
+        super.onStop();
+    }
 }

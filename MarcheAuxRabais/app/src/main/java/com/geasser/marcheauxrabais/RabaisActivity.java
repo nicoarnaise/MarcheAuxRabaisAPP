@@ -186,4 +186,9 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
         }
     }
+
+    protected void onStop() {
+        EcranPrincipal.notificationManager.cancelAll();
+        super.onStop();
+    }
 }

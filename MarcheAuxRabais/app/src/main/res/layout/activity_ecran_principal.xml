@@ -30,7 +30,7 @@
             android:layout_width="44dp"
             android:layout_height="40dp"
             android:id="@+id/btSettings"
-            android:background="@drawable/parametre"
+            android:background="@drawable/th"
             android:translationY="-10dp" />
 
     </android.support.design.widget.AppBarLayout>

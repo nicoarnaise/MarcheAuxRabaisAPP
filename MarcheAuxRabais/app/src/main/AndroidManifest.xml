@@ -22,7 +22,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/ic_launchershoess"
         android:label="@string/app_name"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
@@ -43,7 +43,8 @@
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
-        <activity android:name=".EcranPrincipal" />
+        <activity android:name=".EcranPrincipal"
+            android:launchMode="singleTop"/>
         <activity android:name=".ListeEntreprises" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -74,7 +75,6 @@
         </activity>
         <activity android:name=".ChallengeActivity" />
         <activity android:name=".RabaisActivity" />
-        <activity android:name=".SettingsActivity"></activity>
     </application>
 
 </manifest>

@@ -1,5 +1,8 @@
 package com.geasser.marcheauxrabais;
 
+import android.app.NotificationManager;
+import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -52,12 +55,11 @@ public class MapsActivity extends FragmentActivity implements
     private String  mLastUpdateTime;
 
     private LatLng positionCamera;
-
-
     private final String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
     private final String LOCATION_KEY = "location-key";
     private final String LAST_UPDATED_TIME_STRING_KEY = "last-updated-time-string-key";
     private final String SAVE_POSITION_CAMERA = "save_camera_camera";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,7 +94,6 @@ public class MapsActivity extends FragmentActivity implements
        // mMap.addMarker(new MarkerOptions().position(chicoutimi).title("Marker in Chicoutimi").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
         getMaker();
 
-
         // Obligatoire d'avoir l'autorisation de l'utilisateur pour la localisation.
         if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
@@ -117,20 +118,16 @@ public class MapsActivity extends FragmentActivity implements
                 mLatitude = mLastLocation.getLatitude();
                 mLongitude = mLastLocation.getLongitude();
                 LatLng test = new LatLng(mLatitude, mLongitude);
-                    // Centre la carte sur l'utilisateur avec un zoom de 16.
-                if (positionCamera !=null){
+                // Centre la carte sur l'utilisateur avec un zoom de 16.
+                if (positionCamera != null) {
                     mMap.moveCamera(CameraUpdateFactory.newLatLng(positionCamera));
-                }
-                else {
+                } else {
                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(test, 16));
                 }
-
             }
-
             if (mRequestingLocationUpdates) {
                 startLocationUpdates();
             }
-
         }
     }
 
@@ -205,13 +202,8 @@ public class MapsActivity extends FragmentActivity implements
                     }
                 }
             });
-
-
         }
     }
-
-
-
 
     @Override
     public void onLocationChanged(Location location) {
@@ -231,7 +223,6 @@ public class MapsActivity extends FragmentActivity implements
         LocationServices.FusedLocationApi.removeLocationUpdates(
                 mGoogleApiClient, this);
     }
-
 
     // Use a boolean, mRequestingLocationUpdates, to track whether location updates are currently turned on.
     // In the activity's onResume() method, check whether location updates are currently active, and activate them if not.
@@ -302,9 +293,7 @@ public class MapsActivity extends FragmentActivity implements
         for (String key : list.keySet()){
             mMap.addMarker(new MarkerOptions().position(list.get(key)).title(key).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
         }
-
     }
-
 
     private void updateUI() {
     }
@@ -315,10 +304,17 @@ public class MapsActivity extends FragmentActivity implements
     }
 
     protected void onStop() {
+        EcranPrincipal.notificationManager.cancelAll();
         mGoogleApiClient.disconnect();
         super.onStop();
     }
+    public void onDestroy(){
 
+        Toast.makeText(getApplicationContext(),"OnDestroy",Toast.LENGTH_LONG).show();
+        EcranPrincipal.notificationManager.cancelAll();
+        super.onDestroy();
+
+    }
     @Override
     public void onConnectionSuspended(int i) {
 
