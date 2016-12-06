@@ -10,28 +10,27 @@
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:theme="@style/AppTheme.AppBarOverlay"
-        android:gravity="center_vertical">
+        android:background="#0080FF">
 
         <TextView
             android:text="Pseudo"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/Pseudo"
-            android:layout_weight="1"
             android:textAlignment="center"
-            android:translationY="@dimen/activity_vertical_margin"
             android:translationX="@dimen/activity_vertical_margin"
+            android:translationY="5dp"
             android:textColor="@color/cardview_light_background" />
 
         <Button
-            android:layout_gravity="right|center_vertical"
-            android:layout_width="44dp"
-            android:layout_height="40dp"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_gravity="right"
             android:id="@+id/btSettings"
             android:background="@drawable/th"
-            android:translationY="-10dp" />
+            android:translationY="-13dp"/>
 
     </android.support.design.widget.AppBarLayout>
 
@@ -117,17 +116,5 @@
             android:layout_toEndOf="@+id/textView" />
 
     </RelativeLayout>
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:srcCompat="@mipmap/pas"
-        android:id="@+id/imageView"
-        android:layout_weight="1"
-        android:layout_alignParentTop="true"
-        app:layout_anchor="@+id/activity_ecran_principal"
-        app:layout_anchorGravity="top|left"
-        android:layout_gravity="bottom|center_horizontal"
-        android:translationX="100dp" />
 
 </android.support.design.widget.CoordinatorLayout>

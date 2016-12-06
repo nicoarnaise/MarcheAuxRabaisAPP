@@ -1,6 +1,5 @@
 package com.geasser.marcheauxrabais;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -8,7 +7,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Icon;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -16,6 +14,8 @@ import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -62,154 +62,50 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
         control = ControleurBdd.getInstance(this);
         updateValuesFromBundle(savedInstanceState);
 
-        textView = (TextView) findViewById(R.id.textView);
-        final ImageButton bChallenges = (ImageButton) findViewById(R.id.btchallenges);
-        final ImageButton bProfil = (ImageButton) findViewById(R.id.btprofil);
-        final ImageButton bRabais = (ImageButton) findViewById(R.id.btrabais);
-        final Button bSettings = (Button) findViewById(R.id.btSettings);
-        final ImageButton ibMaps = (ImageButton) findViewById(R.id.ibMaps);
-        pseudo = (TextView) findViewById(R.id.Pseudo);
-        ControleurBdd control = ControleurBdd.getInstance(this);
-        control.execute("DELETE FROM histachat", ControleurBdd.BASE.INTERNE);
-
-        notificationManager = (NotificationManager)
-                getSystemService(NOTIFICATION_SERVICE);
-
-        Intent intent = new Intent(this, EcranPrincipal.class);
-        pending = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
-
-
-        ibMaps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                notificationManager.cancelAll();
-                Intent MapsIntent = new Intent(EcranPrincipal.this, MapsActivity.class);
-                EcranPrincipal.this.startActivity(MapsIntent);
-                // On crée un utilitaire de configuration pour cette animation
-                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
-                // On l'affecte au widget désiré, et on démarre l'animation
-                ibMaps.startAnimation(animation);
-
-            }
-        });
-
-
-
-        bChallenges.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // On crée un utilitaire de configuration pour cette animation
-                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
-                // On l'affecte au widget désiré, et on démarre l'animation
-               bChallenges.startAnimation(animation);
-                Intent ChallengeIntent = new Intent(EcranPrincipal.this, ChallengeActivity.class);
-                EcranPrincipal.this.startActivity(ChallengeIntent);
-            }
-        });
-
-        bProfil.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // On crée un utilitaire de configuration pour cette animation
-                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
-                // On l'affecte au widget désiré, et on démarre l'animation
-                bProfil.startAnimation(animation);
-                Intent profilIntent = new Intent(EcranPrincipal.this, ProfilActivity.class);
-                EcranPrincipal.this.startActivity(profilIntent);
-            }
-        });
-
-        bRabais.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // On crée un utilitaire de configuration pour cette animation
-                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
-                // On l'affecte au widget désiré, et on démarre l'animation
-                bRabais.startAnimation(animation);
-                Intent RabaisIntent = new Intent(EcranPrincipal.this, RabaisActivity.class);
-                EcranPrincipal.this.startActivity(RabaisIntent);
-            }
-        });
-
-
-        final LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
-        callbackManager = CallbackManager.Factory.create();
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
-        // Build a GoogleApiClient with access to the Google Sign-In API and the
-        // options specified by gso.
-        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
-
-
-        bSettings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // On crée un utilitaire de configuration pour cette animation
-                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
-                // On l'affecte au widget désiré, et on démarre l'animation
-                bSettings.startAnimation(animation);
-
-                        // Si connecté avec fb appuie sur le bouton log out qui est caché
-                        if (AccessToken.getCurrentAccessToken() != null) {
-                            notificationManager.cancelAll();
-                            LoginManager.getInstance().logOut();
-                            Intent registerIntent = new Intent(EcranPrincipal.this, LoginActivity.class);
-                            EcranPrincipal.this.startActivity(registerIntent);
-                            finish();
-                        } else {
-                            notificationManager.cancelAll();
-                            Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
-                                    new ResultCallback<Status>() {
-                                        @Override
-                                        public void onResult(Status status) {
-                                            // [START_EXCLUDE]
-                                            // updateUI(false);
-                                            // [END_EXCLUDE]
-                                        }
-                                    });
-                            Intent registerIntent = new Intent(EcranPrincipal.this, LoginActivity.class);
-                            EcranPrincipal.this.startActivity(registerIntent);
-                            finish();
-                        }
-            }
-        });
-        
-        mSensorManager = (SensorManager)
-                getSystemService(Context.SENSOR_SERVICE);
-        mStepCounterSensor = mSensorManager
-                .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
-
+        initialisation();
         Toast.makeText(getApplicationContext(),"OnCreate",Toast.LENGTH_LONG).show();
+
     }
 
     // onResume est une fonction appellée quand l'activité est au sommet de la pile d'activité donc ne fonctionne pas en arrière-plan.
     protected void onResume() {
         super.onResume();
-        pasSupp=0;
+        // -pasSupp=0;
         miseAJour();
         mSensorManager.registerListener(this, mStepCounterSensor,SensorManager.SENSOR_DELAY_FASTEST);
         Toast.makeText(getApplicationContext(),"OnResume",Toast.LENGTH_LONG).show();
-
     }
+
     // Called when the activity is no longer visible to the user, because another activity has been resumed and is covering this one.
     protected void onStop() {
-        Toast.makeText(getApplicationContext(),"OnStop",Toast.LENGTH_LONG).show();
+       // Toast.makeText(getApplicationContext(),"OnStop",Toast.LENGTH_LONG).show();
         super.onStop();
     }
-    public  void onDestroy(){
 
+    public  void onDestroy(){
         Toast.makeText(getApplicationContext(),"OnDestroy",Toast.LENGTH_LONG).show();
         notificationManager.cancelAll();
         super.onDestroy();
         notificationManager.cancel(0);
         mSensorManager.unregisterListener(this, mStepCounterSensor);
+    }
 
+//    @Override
+//    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
+//        if (keyCode == KeyEvent.KEYCODE_HOME)
+//        {
+//            // do your stuff here
+//            Toast.makeText(getApplicationContext(),"Bite",Toast.LENGTH_SHORT).show();
+//            return true;
+//        }
+//        return super.onKeyLongPress(keyCode, event);
+//    }
 
-
+    @Override
+    protected void onUserLeaveHint()
+    {
+        Toast.makeText(getApplicationContext(),"Bite",Toast.LENGTH_SHORT).show();
+        super.onUserLeaveHint();
     }
 
 
@@ -229,15 +125,9 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
         }
 
 
-
         //Enregistre le nombre de pas dans la bdd interne tous les 10pas
         //   if(nbTot%10==0)
 
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Obligatoire quand SensorEventListener est implémenté
     }
 
 
@@ -245,7 +135,6 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
    public static void UpdatePas (int pas){
         nbPas=pas;
         pasSupp=0;
-
     }
 
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -280,6 +169,7 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
     }
 
     private void miseAJour(){
+
         ArrayList<HashMap<String, String>> tab = control.selection("SELECT Pas FROM profil WHERE UserName='"+LoginActivity.pseudo+"';",ControleurBdd.BASE.INTERNE);
         if (LoginActivity.NameAPI!= null)
             pseudo.setText(LoginActivity.NameAPI );
@@ -287,25 +177,143 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
             pseudo.setText(LoginActivity.pseudo);
 
         pseudo.setText(pseudo.getText() + " : "+Integer.toString(nbPas+pasSupp) + " pas");
+
+
         Bitmap myBitmap1 = BitmapFactory.decodeResource(getResources(),
                 R.mipmap.ic_launchershoess);
         Notification notification = new Notification.Builder(this)
                 .setContentTitle("MarcheAuxRabais")
-                .setContentText("Nombre de pas :" + Integer.toString(nbPas+pasSupp))
+                .setContentText(pseudo.getText())
                 .setLargeIcon(myBitmap1)
                 .setSmallIcon( R.mipmap.ic_launchershoess)
                 .setContentIntent(pending)
                 .setAutoCancel(true).build();
-
+        notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
 
     }
 
+    public void initialisation(){
+
+        textView = (TextView) findViewById(R.id.textView);
+        final ImageButton bChallenges = (ImageButton) findViewById(R.id.btchallenges);
+        final ImageButton bProfil = (ImageButton) findViewById(R.id.btprofil);
+        final ImageButton bRabais = (ImageButton) findViewById(R.id.btrabais);
+        final Button bSettings = (Button) findViewById(R.id.btSettings);
+        final ImageButton ibMaps = (ImageButton) findViewById(R.id.ibMaps);
+        final LoginButton loginButton = (LoginButton) findViewById(R.id.login_button);
+        pseudo = (TextView) findViewById(R.id.Pseudo);
+        //  control.execute("DELETE FROM histachat", ControleurBdd.BASE.INTERNE);
+
+        notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        Intent intent = new Intent(this, EcranPrincipal.class);
+        pending = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
 
 
-    // Empeche le retour arrière
-    @Override
-    public void onBackPressed(){
+
+        ibMaps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                notificationManager.cancelAll();
+                Intent MapsIntent = new Intent(EcranPrincipal.this, MapsActivity.class);
+                EcranPrincipal.this.startActivity(MapsIntent);
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                ibMaps.startAnimation(animation);
+
+            }
+        });
+
+
+
+        bChallenges.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                bChallenges.startAnimation(animation);
+                Intent ChallengeIntent = new Intent(EcranPrincipal.this, ChallengeActivity.class);
+                EcranPrincipal.this.startActivity(ChallengeIntent);
+            }
+        });
+
+        bProfil.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                bProfil.startAnimation(animation);
+                Intent profilIntent = new Intent(EcranPrincipal.this, ProfilActivity.class);
+                EcranPrincipal.this.startActivity(profilIntent);
+            }
+        });
+
+        bRabais.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                bRabais.startAnimation(animation);
+                Intent RabaisIntent = new Intent(EcranPrincipal.this, RabaisActivity.class);
+                EcranPrincipal.this.startActivity(RabaisIntent);
+            }
+        });
+
+
+        callbackManager = CallbackManager.Factory.create();
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestEmail()
+                .build();
+        // Build a GoogleApiClient with access to the Google Sign-In API and the
+        // options specified by gso.
+        mGoogleApiClient = new GoogleApiClient.Builder(getApplicationContext())
+                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                .build();
+
+
+        bSettings.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // On crée un utilitaire de configuration pour cette animation
+                Animation animation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.animation);
+                // On l'affecte au widget désiré, et on démarre l'animation
+                bSettings.startAnimation(animation);
+
+                // Si connecté avec fb appuie sur le bouton log out qui est caché
+                if (AccessToken.getCurrentAccessToken() != null) {
+                    LoginManager.getInstance().logOut();
+                    Intent registerIntent = new Intent(EcranPrincipal.this, LoginActivity.class);
+                    EcranPrincipal.this.startActivity(registerIntent);
+                    finish();
+                } else {
+                    Auth.GoogleSignInApi.signOut(mGoogleApiClient).setResultCallback(
+                            new ResultCallback<Status>() {
+                                @Override
+                                public void onResult(Status status) {
+                                    // [START_EXCLUDE]
+                                    // updateUI(false);
+                                    // [END_EXCLUDE]
+                                }
+                            });
+                    Intent registerIntent = new Intent(EcranPrincipal.this, LoginActivity.class);
+                    EcranPrincipal.this.startActivity(registerIntent);
+                    finish();
+                }
+
+                finish();
+            }
+        });
+
+        // Relatif au comptage des pas
+        mSensorManager = (SensorManager)
+                getSystemService(Context.SENSOR_SERVICE);
+        mStepCounterSensor = mSensorManager
+                .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
 
     }
 
@@ -313,4 +321,17 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
+
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {
+        // Obligatoire quand SensorEventListener est implémenté
+    }
+
+
+    @Override
+    public void onBackPressed(){
+
+    }
+
 }
