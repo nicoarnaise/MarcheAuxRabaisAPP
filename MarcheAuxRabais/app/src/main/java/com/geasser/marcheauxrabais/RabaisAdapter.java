@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,7 +17,7 @@ import java.util.List;
  * Created by Nicolas on 17/11/2016.
  */
 
-public class RabaisAdapter extends BaseAdapter {
+public class RabaisAdapter extends BaseAdapter implements Serializable{
 
     // Une liste de personnes
     private List<Rabais> mListR;

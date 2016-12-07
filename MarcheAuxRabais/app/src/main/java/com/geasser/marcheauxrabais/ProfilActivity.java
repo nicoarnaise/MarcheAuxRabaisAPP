@@ -330,16 +330,4 @@ public class ProfilActivity extends AppCompatActivity {
         }
 
     }
-
-
-    protected void onStop() {
-        EcranPrincipal.notificationManager.cancelAll();
-        super.onStop();
-    }
-
-
-    protected void onStop() {
-        EcranPrincipal.notificationManager.cancelAll();
-        super.onStop();
-    }
 }

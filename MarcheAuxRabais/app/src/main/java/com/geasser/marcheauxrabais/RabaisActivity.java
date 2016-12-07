@@ -21,23 +21,29 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
 
     protected HashMap<Integer,Rabais> listActive = new HashMap<Integer, Rabais>();
     protected ListView list;
+    protected Rabais item;
+    protected TextView selected;
+    protected int pas;
+    protected ArrayList<Rabais> listR;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Mes Rabais");
         setContentView(R.layout.activity_rabais);
-
-        ControleurBdd control = ControleurBdd.getInstance(this);
-        //Récupération de la liste des personnes
-        /*ArrayList<Rabais> listR = Rabais.getAListOfRabais();*/
-        control.syncRabaisProfil();
-        control.syncRabais();
-        ArrayList<Rabais> listR = toRabais(control.selection("SELECT ID, Image, Nom, Cout, Description FROM rabais", ControleurBdd.BASE.INTERNE));
-
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
+                //Récupération de la liste des personnes
+            /*ArrayList<Rabais> listR = Rabais.getAListOfRabais();*/
+                control.syncRabaisProfil();
+                control.syncRabais();
+            }
+        });
+        listR = toRabais(ControleurBdd.getInstance(this).selection("SELECT ID, Image, Nom, Cout, Description FROM rabais", ControleurBdd.BASE.INTERNE));
         //Création et initialisation de l'Adapter pour les personnes
         RabaisAdapter adapter = new RabaisAdapter(this, listR);
-
 
         //Ecoute des évènements sur votre liste
         adapter.addListener(this);
@@ -47,45 +53,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
 
         //Initialisation de la liste avec les données
         list.setAdapter(adapter);
-
-        /*//Timer des temps impartis pour les rabais activés
-        int i = 0;
-        for (Rabais item : listR){
-            if (item.active){
-                listActive.put(i,item);
-            }
-            i++;
-        }
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask(){
-            @Override
-            public void run() {
-                runOnUiThread(new Runnable(){
-                    @Override
-                    public void run() {
-                        for(Integer Tag : listActive.keySet()){
-                            TextView txt = (TextView) list.findViewWithTag(Tag).findViewById(R.id.activation);
-                            int timeLeft = listActive.get(Tag).getTimeLeft();
-                            if (timeLeft==0){
-                                expiration(listActive.get(Tag));
-                                txt.setText("Activer le rabais");
-                                txt.setAlpha(0.1f);
-                            }
-                            else {
-                                txt.setText(""+timeLeft);
-                            }
-                        }
-                    }
-                });
-            }
-        },0,1000);*/
     }
-
-    /*protected void expiration(Rabais item){
-        ControleurBdd control = ControleurBdd.getInstance(this);
-        int idjoin=Integer.parseInt(control.selection("SELECT ID WHERE IDProfil="+LoginActivity.IDuser+", IDRabais="+item.ID, ControleurBdd.BASE.EXTERNE).get(0).get("ID"));
-        control.execute("UPDATE rabaisprofil SET Disponible=0 WHERE ID="+idjoin, ControleurBdd.BASE.INTERNE);
-    }*/
 
     private ArrayList<Rabais> toRabais(ArrayList<HashMap<String, String>> selection) {
         ArrayList<Rabais> listR = new ArrayList<>();
@@ -123,65 +91,76 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         }
     }
 
-    public void onClickAchat(Rabais item, int position) {
-        ListView list = (ListView)findViewById(R.id.ListView01);
-        ImageView selected = (ImageView)list.findViewWithTag(position).findViewById(R.id.imageAchat);
+    public void onClickAchat(Rabais sel, final int position) {
+        item = sel;
+        final ImageView selected = (ImageView)list.findViewWithTag(position).findViewById(R.id.imageAchat);
         Toast.makeText(this,"Achat en cours ...",Toast.LENGTH_SHORT).show();
+        list.setEnabled(false);
         if(selected.getAlpha() == 1){
-            ControleurBdd control = ControleurBdd.getInstance(this);
-            control.syncProfil();
-            HashMap<String,String> map = control.selection("SELECT Pas FROM profil WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE).get(0);
-            int pas = Integer.parseInt(map.get("Pas"));
-            pas -= item.prix;
-            control.execute("UPDATE profil SET Pas="+pas+" WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE);
+            new Thread(new Runnable() {
+                public void run() {
+                    ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
+                    control.syncProfil();
+                    HashMap<String,String> map = control.selection("SELECT Pas FROM profil WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE).get(0);
+                    int pas = Integer.parseInt(map.get("Pas"));
+                    pas -= item.prix;
+                    control.execute("UPDATE profil SET Pas="+pas+" WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE);
 
-            //mise à jour de la table histachat
-            long date = new Date().getTime();
-            control.execute("INSERT INTO histachat (Utilisateur,Date,Rabais) VALUES ("+LoginActivity.IDuser+","+date+","+item.ID+")", ControleurBdd.BASE.EXTERNE);
-            control.execute("INSERT INTO histachat (Utilisateur,Date,Rabais) VALUES ("+LoginActivity.IDuser+","+date+","+item.ID+")", ControleurBdd.BASE.INTERNE);
+                    //mise à jour de la table histachat
+                    long date = new Date().getTime();
+                    control.execute("INSERT INTO histachat (Utilisateur,Date,Rabais) VALUES ("+LoginActivity.IDuser+","+date+","+item.ID+")", ControleurBdd.BASE.EXTERNE);
+                    control.execute("INSERT INTO histachat (Utilisateur,Date,Rabais) VALUES ("+LoginActivity.IDuser+","+date+","+item.ID+")", ControleurBdd.BASE.INTERNE);
 
-            // mise à jour de la table rabaisprofil
+                    // mise à jour de la table rabaisprofil
 
-            ArrayList<HashMap<String,String>> ret = control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser+" AND IDRabais="+item.ID, ControleurBdd.BASE.EXTERNE);
-            if(ret!=null){
-                int idjoin = Integer.parseInt(ret.get(0).get("ID"));
-                control.execute("UPDATE rabaisprofil SET Disponible=2 WHERE ID="+idjoin, ControleurBdd.BASE.EXTERNE);
-            }else{
-                control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",2)", ControleurBdd.BASE.EXTERNE);
-            }
-            ret = control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser+" AND IDRabais="+item.ID, ControleurBdd.BASE.INTERNE);
-            if(ret!=null){
-                int idjoin = Integer.parseInt(ret.get(0).get("ID"));
-                control.execute("UPDATE rabaisprofil SET Disponible=1 WHERE ID="+idjoin, ControleurBdd.BASE.INTERNE);
-            }else{
-                control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",1)", ControleurBdd.BASE.INTERNE);
-            }
-            control.syncProfil();
-            control.syncRabaisProfil();
+                    ArrayList<HashMap<String,String>> ret = control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser+" AND IDRabais="+item.ID, ControleurBdd.BASE.EXTERNE);
+                    if(ret!=null){
+                        int idjoin = Integer.parseInt(ret.get(0).get("ID"));
+                        control.execute("UPDATE rabaisprofil SET Disponible=2 WHERE ID="+idjoin, ControleurBdd.BASE.EXTERNE);
+                    }else{
+                        control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",2)", ControleurBdd.BASE.EXTERNE);
+                    }
+                    ret = control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser+" AND IDRabais="+item.ID, ControleurBdd.BASE.INTERNE);
+                    if(ret!=null){
+                        int idjoin = Integer.parseInt(ret.get(0).get("ID"));
+                        control.execute("UPDATE rabaisprofil SET Disponible=1 WHERE ID="+idjoin, ControleurBdd.BASE.INTERNE);
+                    }else{
+                        control.execute("INSERT INTO rabaisprofil (IDProfil,IDRabais,Disponible) VALUES ("+LoginActivity.IDuser+","+item.ID+",1)", ControleurBdd.BASE.INTERNE);
+                    }
+                    control.syncProfil();
+                    control.syncRabaisProfil();
+                }
+            }).start();
             selected.setAlpha(0.1f);
-            ((TextView)list.findViewWithTag(position).findViewById(R.id.activation)).setAlpha(1f);
+            list.findViewWithTag(position).findViewById(R.id.activation).setAlpha(1f);
             Toast.makeText(this,item.titre+" acheté !",Toast.LENGTH_SHORT).show();
+            list.setEnabled(true);
             EcranPrincipal.UpdatePas(pas);
         }else{
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void onClickActivate(Rabais item, int position){
-        ListView list = (ListView)findViewById(R.id.ListView01);
-        TextView selected = (TextView)list.findViewWithTag(position).findViewById(R.id.activation);
+    public void onClickActivate(Rabais sel, int position){
+        item = sel;
+        selected = (TextView)list.findViewWithTag(position).findViewById(R.id.activation);
         Toast.makeText(this,"Activation en cours ...",Toast.LENGTH_SHORT).show();
         if(selected.getAlpha() == 1){
-            item.active = true;
-            ControleurBdd control = ControleurBdd.getInstance(this);
-            try{
-                int idjoin=Integer.parseInt(control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil="+LoginActivity.IDuser+" AND IDRabais="+item.ID, ControleurBdd.BASE.INTERNE).get(0).get("ID"));
-                control.execute("UPDATE rabaisprofil SET Disponible=3 WHERE ID="+idjoin, ControleurBdd.BASE.INTERNE);
-                selected.setText("Rabais activé !!");
-            }catch(Exception e){
-                Toast.makeText(this, "Erreur d'activation",Toast.LENGTH_SHORT).show();
-            }
-            control.syncRabaisProfil();
+            new Thread(new Runnable() {
+                public void run() {
+                    item.active = true;
+                    ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
+                    try {
+                        int idjoin = Integer.parseInt(control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDRabais=" + item.ID, ControleurBdd.BASE.INTERNE).get(0).get("ID"));
+                        control.execute("UPDATE rabaisprofil SET Disponible=3 WHERE ID=" + idjoin, ControleurBdd.BASE.INTERNE);
+                    } catch (Exception e) {
+                        Toast.makeText(getApplicationContext(), "Erreur d'activation", Toast.LENGTH_SHORT).show();
+                    }
+                    control.syncRabaisProfil();
+                    //TODO lancer l'activité codebare
+                }
+            }).start();
+            selected.setAlpha(0.1f);
         }else{
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
         }
