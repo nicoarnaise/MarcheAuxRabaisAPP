@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_profil"
     android:layout_width="match_parent"
@@ -10,67 +11,149 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.geasser.marcheauxrabais.ProfilActivity">
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/contenu_Profil" >
-
-        <TextView
-            android:text="Pseudo"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/pseudo" />
+        android:layout_height="match_parent">
 
         <LinearLayout
-            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/progressLayout"></LinearLayout>
-
-        <Space
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <TabHost
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/select_Profil">
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:id="@+id/contenu_Profil"
+            android:weightSum="1">
 
             <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:id="@+id/tab_contener">
+                android:layout_weight="0.99">
 
-                <TabWidget
-                    android:id="@android:id/tabs"
+                <TextView
+                    android:text="Pseudo"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:id="@+id/pseudo"
+                    android:layout_height="30dp" />
 
-                <FrameLayout
-                    android:id="@android:id/tabcontent"
+                <LinearLayout
+                    android:orientation="horizontal"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="40dp">
 
-                    <LinearLayout
-                        android:id="@+id/statistiques"
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="match_parent"
+                        android:layout_centerVertical="true"
+                        app:srcCompat="@mipmap/pas"
+                        android:id="@+id/imageView2"
+                        android:elevation="1dp" />
+
+                    <TextView
+                        android:text="TextView"
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:orientation="vertical">
+                        android:layout_centerVertical="true"
+                        android:id="@+id/pas"
+                        android:layout_weight="1"
+                        android:elevation="1dp"
+                        android:gravity="center_vertical" />
 
-                    </LinearLayout>
+                </LinearLayout>
 
-                    <LinearLayout
-                        android:id="@+id/succes"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:orientation="vertical">
+                <TextView
+                    android:text="TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/niveau"
+                    android:layout_weight="1"
+                    android:gravity="center_vertical" />
 
-                    </LinearLayout>
-                </FrameLayout>
+                <TextView
+                    android:text="TextView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerVertical="true"
+                    android:id="@+id/exp"
+                    android:layout_weight="1"
+                    android:elevation="1dp"
+                    android:gravity="center_vertical" />
+
             </LinearLayout>
-        </TabHost>
-    </LinearLayout>
+
+
+            <TabHost
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/select_Profil">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:orientation="vertical">
+
+                    <TabWidget
+                        android:id="@android:id/tabs"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:animationCache="false"
+                        android:addStatesFromChildren="false"
+                        android:clipChildren="false"
+                        android:clipToPadding="false"
+                        android:animateLayoutChanges="false"
+                        android:dividerPadding="10dp"
+                        style="@android:style/Widget.Holo.Light.TabWidget" />
+
+                    <FrameLayout
+                        android:id="@android:id/tabcontent"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+
+                        <LinearLayout
+                            android:id="@+id/statistiques"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:text="TextView"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/pastot"
+                                android:layout_marginTop="10dp" />
+
+                            <TextView
+                                android:text="TextView"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/distance" />
+
+                            <TextView
+                                android:text="TextView"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:id="@+id/calories"
+                                android:layout_marginBottom="10dp" />
+
+                            <com.github.mikephil.charting.charts.BarChart
+                                android:id="@+id/chart"
+                                android:layout_width="match_parent"
+                                android:layout_height="match_parent"
+                                android:minHeight="500dp" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/succes"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            android:orientation="vertical">
+
+                        </LinearLayout>
+
+                    </FrameLayout>
+                </LinearLayout>
+            </TabHost>
+        </LinearLayout>
+    </ScrollView>
 
 </RelativeLayout>
