@@ -37,14 +37,14 @@
             android:name="@string/step_counter"
             android:required="false" />
 
-
         <activity android:name=".RegisterActivity" />
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name" />
-        <activity android:name=".EcranPrincipal"
-            android:launchMode="singleTop"/>
+        <activity
+            android:name=".EcranPrincipal"
+            android:launchMode="singleTop" />
         <activity android:name=".ListeEntreprises" />
         <!--
              The API key for Google Maps-based APIs is defined as a string resource.
@@ -63,10 +63,10 @@
             android:label="@string/title_activity_maps" />
         <activity android:name=".ProfilActivity" />
 
-        <!-- Permet de cacher le clavier sur le premier EditText focusable-->
-        <activity android:name=".LoginActivity"
+        <!-- Permet de cacher le clavier sur le premier EditText focusable -->
+        <activity
+            android:name=".LoginActivity"
             android:windowSoftInputMode="stateHidden">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -75,6 +75,8 @@
         </activity>
         <activity android:name=".ChallengeActivity" />
         <activity android:name=".RabaisActivity" />
+        <activity android:name=".ChallengeAdapter"></activity>
+        <activity android:name=".RabaisActive"></activity>
     </application>
 
 </manifest>

@@ -54,7 +54,6 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
     private String NOMBRE_PAS = "nombre_pas";
     private String PAS_SUPPLEMENTAIRES = "pas_supplementaires";
     public static NotificationManager notificationManager;
-    PendingIntent pending;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -186,7 +185,7 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
                 .setContentText(pseudo.getText())
                 .setLargeIcon(myBitmap1)
                 .setSmallIcon( R.mipmap.ic_launchershoess)
-                .setContentIntent(pending)
+
                 .setAutoCancel(true).build();
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
@@ -207,7 +206,7 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
 
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         Intent intent = new Intent(this, EcranPrincipal.class);
-        pending = PendingIntent.getActivity(this, (int) System.currentTimeMillis(), intent, 0);
+
 
 
 

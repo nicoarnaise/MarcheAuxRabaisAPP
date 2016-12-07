@@ -120,6 +120,7 @@ public class BddExt extends AsyncTask<String, Void, String> {
         ArrayList<HashMap<String,String>> tab = new ArrayList<HashMap<String,String>>();
         s = s.substring(2,s.length());
         s=s.replaceAll("\"","");
+        s=s.replaceAll("\\\\","");
         s=s.substring(0,s.length()-1);
         String[] split = s.split("\\{");
         try {

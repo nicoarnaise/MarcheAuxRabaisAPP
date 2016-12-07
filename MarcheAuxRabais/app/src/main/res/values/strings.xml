@@ -31,4 +31,7 @@
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_test">test</string>
     <string name="title_activity_j">j</string>
+    <string name="title_activity_challenge_adapter">ChallengeAdapter</string>
+    <string name="hello_round">Hello Round World!</string>
+    <string name="hello_square">Hello Square World!</string>
 </resources>
