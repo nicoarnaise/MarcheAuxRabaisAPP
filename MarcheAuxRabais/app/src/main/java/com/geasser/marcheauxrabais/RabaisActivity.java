@@ -1,5 +1,6 @@
 package com.geasser.marcheauxrabais;
 
+import android.content.Intent;
 import android.graphics.Rect;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -31,16 +32,13 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         super.onCreate(savedInstanceState);
         setTitle("Mes Rabais");
         setContentView(R.layout.activity_rabais);
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
-                //Récupération de la liste des personnes
-            /*ArrayList<Rabais> listR = Rabais.getAListOfRabais();*/
-                control.syncRabaisProfil();
-                control.syncRabais();
-            }
-        });
+        ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
+
+        control.syncRabais();
+    }
+
+    public void onResume(){
+        ControleurBdd.getInstance(this).syncRabaisProfil();
         listR = toRabais(ControleurBdd.getInstance(this).selection("SELECT ID, Image, Nom, Cout, Description FROM rabais", ControleurBdd.BASE.INTERNE));
         //Création et initialisation de l'Adapter pour les personnes
         RabaisAdapter adapter = new RabaisAdapter(this, listR);
@@ -53,6 +51,8 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
 
         //Initialisation de la liste avec les données
         list.setAdapter(adapter);
+
+        super.onResume();
     }
 
     private ArrayList<Rabais> toRabais(ArrayList<HashMap<String, String>> selection) {
@@ -153,11 +153,13 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                     try {
                         int idjoin = Integer.parseInt(control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDRabais=" + item.ID, ControleurBdd.BASE.INTERNE).get(0).get("ID"));
                         control.execute("UPDATE rabaisprofil SET Disponible=3 WHERE ID=" + idjoin, ControleurBdd.BASE.INTERNE);
+                        Intent intent = new Intent(getApplicationContext(),RabaisActive.class);
+                        intent.putExtra("ID",item.ID);
+                        startActivity(intent);
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "Erreur d'activation", Toast.LENGTH_SHORT).show();
                     }
                     control.syncRabaisProfil();
-                    //TODO lancer l'activité codebare
                 }
             }).start();
             selected.setAlpha(0.1f);
