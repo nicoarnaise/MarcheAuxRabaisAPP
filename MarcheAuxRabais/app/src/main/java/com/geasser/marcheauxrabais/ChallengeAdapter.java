@@ -1,6 +1,7 @@
 package com.geasser.marcheauxrabais;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -70,6 +71,14 @@ public class ChallengeAdapter extends BaseAdapter {
         titleTextView.setText(mDataSource.get(position).get("Nom").toString());
         subtitleTextView.setText(mDataSource.get(position).get("Description").toString());
         thumbnailImageView.setImageURI(Uri.parse("android.resource://"+mDataSource.get(position).get("Image")));
+
+
+        if (position==0 || position==3)
+            rowView.setAlpha(0.3f);
+        else
+            rowView.setBackgroundColor(Color.parseColor("#4066FFCC"));
+
+
         return rowView;
     }
 }

@@ -89,24 +89,6 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
         mSensorManager.unregisterListener(this, mStepCounterSensor);
     }
 
-//    @Override
-//    public boolean onKeyLongPress(int keyCode, KeyEvent event) {
-//        if (keyCode == KeyEvent.KEYCODE_HOME)
-//        {
-//            // do your stuff here
-//            Toast.makeText(getApplicationContext(),"Bite",Toast.LENGTH_SHORT).show();
-//            return true;
-//        }
-//        return super.onKeyLongPress(keyCode, event);
-//    }
-
-    @Override
-    protected void onUserLeaveHint()
-    {
-        Toast.makeText(getApplicationContext(),"Bite",Toast.LENGTH_SHORT).show();
-        super.onUserLeaveHint();
-    }
-
 
     public void onSensorChanged(SensorEvent event) {
         Sensor sensor = event.sensor;

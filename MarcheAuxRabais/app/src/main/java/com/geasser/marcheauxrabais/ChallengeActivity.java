@@ -22,7 +22,7 @@ public class ChallengeActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle("Mes Challenges");
+        setTitle("Mes Succès");
         setContentView(R.layout.activity_challenge);
 
         mListView = (ListView) findViewById(R.id.listview);
