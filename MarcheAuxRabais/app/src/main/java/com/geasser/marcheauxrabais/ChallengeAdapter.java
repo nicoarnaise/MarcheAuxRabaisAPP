@@ -3,33 +3,29 @@ package com.geasser.marcheauxrabais;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
-import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import static com.facebook.FacebookSdk.getApplicationContext;
 
 public class ChallengeAdapter extends BaseAdapter {
 
     private Context mContext;
     private LayoutInflater mInflater;
     private  ArrayList<HashMap<String,String>> mDataSource;
-
+    ArrayList<HashMap<String,String>> tab;
     public ChallengeAdapter(Context context,  ArrayList<HashMap<String,String>> items) {
         mContext = context;
         mDataSource = items;
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+//        String IDProfil = String.valueOf(LoginActivity.IDuser);
+        tab = ControleurBdd.getInstance(mContext).selection("SELECT IDSucces FROM succesprofil WHERE IDProfil="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE);
     }
 
     //1
@@ -66,18 +62,22 @@ public class ChallengeAdapter extends BaseAdapter {
         ImageView thumbnailImageView =
                 (ImageView) rowView.findViewById(R.id.icon);
 
-        //    "SELECT Nom, Description, Recompense, Image FROM succes", ControleurBdd.BASE.EXTERNE);
-
         titleTextView.setText(mDataSource.get(position).get("Nom").toString());
         subtitleTextView.setText(mDataSource.get(position).get("Description").toString());
         thumbnailImageView.setImageURI(Uri.parse("android.resource://"+mDataSource.get(position).get("Image")));
 
+        int i =0;
+        while (i<tab.size()) {
+            if (tab.get(i).get("IDSucces").compareTo(String.valueOf(position+1)) == 0) {
+                rowView.setBackgroundColor(Color.parseColor("#4066FFCC"));
+                i=-1;
+                break;
+            }
+            i++;
+        }
 
-        if (position==0 || position==3)
+        if(i!=-1)
             rowView.setAlpha(0.3f);
-        else
-            rowView.setBackgroundColor(Color.parseColor("#4066FFCC"));
-
 
         return rowView;
     }
