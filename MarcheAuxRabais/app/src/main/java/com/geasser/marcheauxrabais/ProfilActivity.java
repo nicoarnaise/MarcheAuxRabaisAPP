@@ -4,11 +4,14 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TabHost;
+import android.widget.TabWidget;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -48,7 +51,8 @@ public class ProfilActivity extends AppCompatActivity {
 
     ControleurBdd control;
     Date premierJour;
-    DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+    DateFormat formatbdd = new SimpleDateFormat("yyyy-MM-dd");
+    DateFormat formatgraph = new SimpleDateFormat("dd/MM");
     TextView pas;
     TextView niveau;
     TextView pseudo;
@@ -61,6 +65,9 @@ public class ProfilActivity extends AppCompatActivity {
     String EXP = "Exp";
     String PREMIERJOUR = "premierJour";
     String LINEDATA = "lineData";
+
+    private ProgressBar mProgress;
+
     /**
      * ATTENTION: This was auto-generated to implement the App Indexing API.
      * See https://g.co/AppIndexing/AndroidStudio for more information.
@@ -90,34 +97,28 @@ public class ProfilActivity extends AppCompatActivity {
         // Affichage du nombre de pas actuel de l'user
         pas.setText(Pas.toString());
         pas.setTypeface(Typeface.DEFAULT_BOLD);
-        pas.setTextColor(Color.BLUE);
 
         // Affhichage du niveau de l'user
-        niveau.setText("Niveau : " + Niveau);
+        niveau.setText(""+Niveau);
         niveau.setTypeface(Typeface.DEFAULT_BOLD);
-        niveau.setTextColor(Color.BLUE);
 
         // Affichage de la progression dans le niveau
         TextView exp = (TextView) findViewById(R.id.exp);
-        exp.setText("Expérience : " + Exp + "/500");
+        exp.setText(Exp + "/500");
         exp.setTypeface(Typeface.DEFAULT_BOLD);
-        exp.setTextColor(Color.BLUE);
 
-        // tabhost parametrage
-        TabHost host = (TabHost) findViewById(R.id.select_Profil);
-        host.setup();
+        // Creation de la progressBar
+        Handler progressBarHandler = new Handler();
 
-        //Tab 1
-        TabHost.TabSpec spec = host.newTabSpec("Statistiques");
-        spec.setContent(R.id.statistiques);
-        spec.setIndicator("Statistiques");
-        host.addTab(spec);
+        final ProgressBar bar = (ProgressBar) findViewById(R.id.progressBar);
+        bar.setMax(500);
 
-        //Tab 2
-        spec = host.newTabSpec("Succes");
-        spec.setContent(R.id.succes);
-        spec.setIndicator("Succes");
-        host.addTab(spec);
+        progressBarHandler .post(new Runnable() {
+
+            public void run() {
+                bar.setProgress(Exp);
+            }
+        });
 
         // Statistiques totales : pas, distance, calories dépensées
         TextView pastot = (TextView) findViewById(R.id.pastot);
@@ -128,15 +129,12 @@ public class ProfilActivity extends AppCompatActivity {
         Integer Tot = tot + Pas;
         Double dist = Tot * 0.75;
         Double calorie = Tot * 0.5;
-        pastot.setText("Nombre de pas totaux effectués : " + Tot.toString());
+        pastot.setText(Tot.toString());
         pastot.setTypeface(Typeface.DEFAULT_BOLD);
-        pastot.setTextColor(Color.BLUE);
-        distance.setText("Distance totale parcourue : " + dist.toString() + " m");
+        distance.setText((dist/1000) + " km");
         distance.setTypeface(Typeface.DEFAULT_BOLD);
-        distance.setTextColor(Color.BLUE);
-        calories.setText("Énergie totale dépensée : " + calorie.toString() + " cal");
+        calories.setText((calorie/1000) + " kcal");
         calories.setTypeface(Typeface.DEFAULT_BOLD);
-        calories.setTextColor(Color.BLUE);
 
         // statistique graphe parametrage
         BarChart chart = (BarChart) findViewById(R.id.chart);
@@ -195,7 +193,7 @@ public class ProfilActivity extends AppCompatActivity {
             Niveau = Integer.parseInt(niv.get(0).get("Lvl"));
 
             // Affichage de la progression dans le niveau
-            ArrayList<HashMap<String, String>> exp = control.selection("SELECT Exp FROM profil WHERE ID = " + LoginActivity.IDuser, ControleurBdd.BASE.INTERNE);
+            ArrayList<HashMap<String, String>> exp = control.selection("SELECT Exp FROM profil WHERE ID = " + LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE);
             Exp = Integer.parseInt(exp.get(0).get("Exp"));
 
             // statistique graphe parametrage
@@ -206,11 +204,11 @@ public class ProfilActivity extends AppCompatActivity {
                 for (HashMap<String, String> ligne : historique) {
                     try {
                         if (jour != null) {
-                            for (int i = 1; i < DateUtil.daysBetween(jour, format.parse(ligne.get("Date"))); i++) {
+                            for (int i = 1; i < DateUtil.daysBetween(jour, formatbdd.parse(ligne.get("Date"))); i++) {
                                 pasData.add(new Pas(0, pasData.size()));
                             }
                         }
-                        jour = format.parse(ligne.get("Date"));
+                        jour = formatbdd.parse(ligne.get("Date"));
                         if (historique.get(0) == ligne) {
                             premierJour = jour;
                         }
@@ -302,7 +300,7 @@ public class ProfilActivity extends AppCompatActivity {
         @Override
         public String getFormattedValue(float value, AxisBase axis) {
             // "value" represents the position of the label on the axis (x or y)
-            return format.format(DateUtil.addDays(premierJour, (int) value));
+            return formatgraph.format(DateUtil.addDays(premierJour, (int) value));
         }
     }
 
