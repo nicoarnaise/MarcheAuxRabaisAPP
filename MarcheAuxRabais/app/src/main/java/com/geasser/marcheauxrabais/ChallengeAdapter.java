@@ -67,14 +67,14 @@ public class ChallengeAdapter extends BaseAdapter {
         thumbnailImageView.setImageURI(Uri.parse("android.resource://"+mDataSource.get(position).get("Image")));
 
         int i =0;
-        while (i<tab.size()) {
-            if (tab.get(i).get("IDSucces").compareTo(String.valueOf(position+1)) == 0) {
-                rowView.setBackgroundColor(Color.parseColor("#4066FFCC"));
-                i=-1;
-                break;
-            }
-            i++;
-        }
+//        while (i<tab.size()) {
+//            if (tab.get(i).get("IDSucces").compareTo(String.valueOf(position+1)) == 0) {
+//                rowView.setBackgroundColor(Color.parseColor("#4066FFCC"));
+//                i=-1;
+//                break;
+//            }
+//            i++;
+//        }
 
         if(i!=-1)
             rowView.setAlpha(0.3f);
