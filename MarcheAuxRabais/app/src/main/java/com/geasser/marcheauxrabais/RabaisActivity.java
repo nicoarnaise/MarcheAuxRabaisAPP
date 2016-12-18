@@ -173,3 +173,4 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         super.onStop();
     }
 }
+

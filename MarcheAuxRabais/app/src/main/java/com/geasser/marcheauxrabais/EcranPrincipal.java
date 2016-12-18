@@ -18,6 +18,7 @@ import android.os.PowerManager;
 import android.support.annotation.NonNull;
 import android.support.v4.content.WakefulBroadcastReceiver;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
@@ -55,17 +56,14 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
     static TextView textView;
     static int pas = 0;
     protected int ThreadPAs = 0;
-    //  static int pasSupp=0;
-    //  private SensorManager mSensorManager;
-    //  private Sensor mStepCounterSensor;
     private ControleurBdd control;
     private TextView pseudo;
-    private String NOMBRE_PAS = "nombre_pas";
-    private String PAS_SUPPLEMENTAIRES = "pas_supplementaires";
     public static NotificationManager notificationManager;
-    protected Intent intent;
 
+
+    protected Intent intent;
     MyReceiver myReceiver;
+    MyReceiver2 myReceiver2;
 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,10 +81,17 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
         intentFilter.addAction(ServicePas.MY_ACTION);
         registerReceiver(myReceiver, intentFilter);
 
+        myReceiver2 = new MyReceiver2();
+        IntentFilter intentFilter2 = new IntentFilter();
+        intentFilter2.addAction(ServicePas.MY_PONEY);
+        registerReceiver(myReceiver2, intentFilter2);
+
         //Start our own service
         intent = new Intent(EcranPrincipal.this,
                 com.geasser.marcheauxrabais.ServicePas.class);
         startService(intent);
+
+
     }
 
 
@@ -196,7 +201,7 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
                 .setContentText(pseudo.getText())
                 .setLargeIcon(myBitmap1)
                 .setSmallIcon( R.mipmap.ic_launchershoess)
-
+                .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
                 .setAutoCancel(true).build();
         notification.flags |= Notification.FLAG_AUTO_CANCEL;
         notificationManager.notify(0, notification);
@@ -215,7 +220,7 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
         //  control.execute("DELETE FROM histachat", ControleurBdd.BASE.INTERNE);
 
         notificationManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        Intent intent = new Intent(this, EcranPrincipal.class);
+        new Intent(this, EcranPrincipal.class);
 
 
 
@@ -348,22 +353,44 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
         @Override
         public void onReceive(Context arg0, Intent arg1) {
             // TODO Auto-generated method stub
-
             PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
-
 
                 int datapassed = arg1.getIntExtra("DATAPASSED", 0);
                 miseAJour(datapassed);
 
+//                int hello = arg1.getIntExtra("CHOCOLAT",0);
+//
+//            if (hello!=0)
+//            {
+//                Toast.makeText(EcranPrincipal.this,
+//                        "Triggered by Service!\n"
+//                                + "Data passed: " + String.valueOf(hello),
+//                        Toast.LENGTH_SHORT).show();
+//            }
 
 
 
+        }
+
+    }
+
+    public class MyReceiver2 extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context arg0, Intent arg1) {
+            // TODO Auto-generated method stub
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+
+                int hello = arg1.getIntExtra("CHOCOLAT",0);
+
+            if (hello!=0)
+            {
+                Toast.makeText(EcranPrincipal.this,
+                        "Triggered by Service!\n"
+                                + "Data passed: " + String.valueOf(hello),
+                        Toast.LENGTH_SHORT).show();
+            }
 
 
-//            Toast.makeText(EcranPrincipal.this,
-//                    "Triggered by Service!\n"
-//                            + "Data passed: " + String.valueOf(datapassed),
-//                    Toast.LENGTH_LONG).show();
 
         }
 

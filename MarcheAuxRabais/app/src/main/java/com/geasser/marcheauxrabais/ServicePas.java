@@ -29,6 +29,7 @@ import java.util.HashMap;
 public class ServicePas extends Service implements SensorEventListener {
 
     final static String MY_ACTION = "MY_ACTION";
+    final static String MY_PONEY = "MY_PONEY";
     protected SensorManager mSensorManager;
     protected Sensor mStepCounterSensor;
     protected int i =0;
@@ -38,6 +39,8 @@ public class ServicePas extends Service implements SensorEventListener {
     static int pasSupp=0;
 
     protected int previousValue=0;
+    protected int iThread=0;
+
 
 
 
@@ -48,16 +51,12 @@ public class ServicePas extends Service implements SensorEventListener {
     }
 
     public void onCreate(){
-        //MyThread myThread = new MyThread();
-        // myThread.start();
-
         // Relatif au comptage des pas
         mSensorManager = (SensorManager)
                 getSystemService(Context.SENSOR_SERVICE);
         mStepCounterSensor = mSensorManager
                 .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
         mSensorManager.registerListener(this, mStepCounterSensor,SensorManager.SENSOR_DELAY_FASTEST);
-
 
         control = ControleurBdd.getInstance(this);
 
@@ -100,6 +99,14 @@ public class ServicePas extends Service implements SensorEventListener {
         intent2.putExtra("DATAPASSED", pasSupp+nbPas);
         sendBroadcast(intent2);
 
+        if (iThread==10){
+            MyThread myThread = new MyThread();
+            myThread.start();
+        }
+
+        iThread++;
+
+
 
     }
 
@@ -113,21 +120,11 @@ public class ServicePas extends Service implements SensorEventListener {
         @Override
         public void run() {
             // TODO Auto-generated method stub
-            for(int i=0; i<10; i++){
-                try {
-                    Thread.sleep(5000);
-                    Intent intent = new Intent();
-                    intent.setAction(MY_ACTION);
-
-                    intent.putExtra("DATAPASSED", i);
-                    i++;
-
-                    sendBroadcast(intent);
-                } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
-            }
+            Intent intent3 = new Intent();
+            intent3.setAction(MY_PONEY);
+            intent3.putExtra("CHOCOLAT", -99);
+            sendBroadcast(intent3);
+            iThread=0;
             stopSelf();
         }
 
