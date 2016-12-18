@@ -2,11 +2,12 @@ package com.geasser.marcheauxrabais;
 
 import android.widget.TextView;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class Rabais {
+public class Rabais implements Serializable{
 
     public int ID;
     public String image;

@@ -1,6 +1,7 @@
 package com.geasser.marcheauxrabais;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -71,11 +72,11 @@ public class RabaisAdapter extends BaseAdapter implements Serializable{
         tv_Activation.setAlpha(mListR.get(position).active?1f:0.1f);
         tv_Prix.setText(""+mListR.get(position).prix);
         tv_Description.setText(mListR.get(position).description);
-        iv_Image.setImageResource(R.mipmap.ic_launcher);
+        iv_Image.setImageURI(Uri.parse("android.resource://"+mListR.get(position).image));
         iv_Caddie.setAlpha(mListR.get(position).disponible?1f:0.1f);
 
 
-        //On mémorise la position de la "Personne" dans le composant textview
+        //On mémorise la position du Rabais dans les composants
         layoutItem.setTag(position);
         tv_Titre.setTag(position);
         tv_Activation.setTag(position);

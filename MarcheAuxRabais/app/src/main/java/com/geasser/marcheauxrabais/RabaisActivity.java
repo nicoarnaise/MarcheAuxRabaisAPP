@@ -32,15 +32,17 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         super.onCreate(savedInstanceState);
         setTitle("Mes Rabais");
         setContentView(R.layout.activity_rabais);
-        ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
+        if(savedInstanceState==null) {
+            ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
+            control.syncEntreprise();
+            control.syncRabais();
 
-        control.syncRabais();
-    }
-
-    public void onResume(){
-        ControleurBdd.getInstance(this).syncRabaisProfil();
-        listR = toRabais(ControleurBdd.getInstance(this).selection("SELECT ID, Image, Nom, Cout, Description FROM rabais", ControleurBdd.BASE.INTERNE));
-        //Création et initialisation de l'Adapter pour les personnes
+            ControleurBdd.getInstance(this).syncRabaisProfil();
+            listR = toRabais(ControleurBdd.getInstance(this).selection("SELECT r.ID, s.Image, r.Nom, r.Cout, r.Description FROM rabais r, secteurs s WHERE s.ID=r.Secteur", ControleurBdd.BASE.INTERNE));
+            //Création et initialisation de l'Adapter pour les rabais
+        }else{
+            listR = (ArrayList<Rabais>) savedInstanceState.get("LISTR");
+        }
         RabaisAdapter adapter = new RabaisAdapter(this, listR);
 
         //Ecoute des évènements sur votre liste
@@ -51,8 +53,11 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
 
         //Initialisation de la liste avec les données
         list.setAdapter(adapter);
+    }
 
-        super.onResume();
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putSerializable("LISTR",listR);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     private ArrayList<Rabais> toRabais(ArrayList<HashMap<String, String>> selection) {
@@ -66,13 +71,9 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
             try{
                 rep = Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT Disponible FROM rabaisprofil WHERE IDprofil="+LoginActivity.IDuser+" AND IDRabais="+map.get("ID"), ControleurBdd.BASE.INTERNE).get(0).get("Disponible"));
                 verifAchat=(rep==0);
-            }catch(Exception e){
-                verifAchat=true;
-            }
-            try{
-                rep = Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT Disponible FROM rabaisprofil WHERE IDprofil="+LoginActivity.IDuser+" AND IDRabais="+map.get("ID"), ControleurBdd.BASE.INTERNE).get(0).get("Disponible"));
                 activable=(rep==1);
             }catch(Exception e){
+                verifAchat=true;
                 activable=false;
             }
             dispo = (Integer.parseInt(map.get("Cout"))<pas+stock) && verifAchat;
@@ -96,7 +97,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         final ImageView selected = (ImageView)list.findViewWithTag(position).findViewById(R.id.imageAchat);
         Toast.makeText(this,"Achat en cours ...",Toast.LENGTH_SHORT).show();
         list.setEnabled(false);
-        if(selected.getAlpha() == 1){
+        if(selected.getAlpha() == 1 && listR.get(position).disponible){
             new Thread(new Runnable() {
                 public void run() {
                     ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
@@ -131,24 +132,27 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                     control.syncRabaisProfil();
                 }
             }).start();
+            listR.get(position).disponible = false;
             selected.setAlpha(0.1f);
+            listR.get(position).active = true;
             list.findViewWithTag(position).findViewById(R.id.activation).setAlpha(1f);
             Toast.makeText(this,item.titre+" acheté !",Toast.LENGTH_SHORT).show();
             list.setEnabled(true);
-            EcranPrincipal.UpdatePas(pas);
+        //    EcranPrincipal.UpdatePas(pas);
         }else{
+            list.setEnabled(true);
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
         }
     }
 
-    public void onClickActivate(Rabais sel, int position){
+    public void onClickActivate(Rabais sel, final int position){
         item = sel;
         selected = (TextView)list.findViewWithTag(position).findViewById(R.id.activation);
         Toast.makeText(this,"Activation en cours ...",Toast.LENGTH_SHORT).show();
-        if(selected.getAlpha() == 1){
+        if(selected.getAlpha() == 1 && listR.get(position).active){
+            listR.get(position).active = false;
             new Thread(new Runnable() {
                 public void run() {
-                    item.active = true;
                     ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
                     try {
                         int idjoin = Integer.parseInt(control.selection("SELECT ID FROM rabaisprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDRabais=" + item.ID, ControleurBdd.BASE.INTERNE).get(0).get("ID"));
@@ -156,12 +160,17 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                         Intent intent = new Intent(getApplicationContext(),RabaisActive.class);
                         intent.putExtra("ID",item.ID);
                         startActivity(intent);
+                        control.syncRabaisProfil();
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "Erreur d'activation", Toast.LENGTH_SHORT).show();
                     }
-                    control.syncRabaisProfil();
                 }
             }).start();
+            boolean test = Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT Pas FROM profil WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.INTERNE).get(0).get("Pas")) >= item.prix;
+            if(test){
+                listR.get(position).disponible=true;
+                list.findViewWithTag(position).findViewById(R.id.imageAchat).setAlpha(1f);
+            }
             selected.setAlpha(0.1f);
         }else{
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
