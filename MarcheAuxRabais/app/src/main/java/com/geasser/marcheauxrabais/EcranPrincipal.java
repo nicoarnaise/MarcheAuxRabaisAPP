@@ -48,7 +48,7 @@ import static android.os.PowerManager.FULL_WAKE_LOCK;
 import static android.os.PowerManager.PARTIAL_WAKE_LOCK;
 
 
-public class EcranPrincipal extends  AppCompatActivity implements SensorEventListener,GoogleApiClient.OnConnectionFailedListener {
+public class EcranPrincipal extends  AppCompatActivity implements GoogleApiClient.OnConnectionFailedListener {
 
     private GoogleApiClient mGoogleApiClient;
     private CallbackManager callbackManager;
@@ -74,7 +74,7 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
 
         initialisation();
 
-        ;        //Register BroadcastReceiver
+        //Register BroadcastReceiver
         //to receive event from our service
         myReceiver = new MyReceiver();
         IntentFilter intentFilter = new IntentFilter();
@@ -87,24 +87,14 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
         registerReceiver(myReceiver2, intentFilter2);
 
         //Start our own service
-        intent = new Intent(EcranPrincipal.this,
-                com.geasser.marcheauxrabais.ServicePas.class);
+        intent = new Intent(EcranPrincipal.this,com.geasser.marcheauxrabais.ServicePas.class);
         startService(intent);
 
 
     }
 
-
-
-
-
-
-
     // onResume est une fonction appellée quand l'activité est au sommet de la pile d'activité donc ne fonctionne pas en arrière-plan.
     protected void onResume() {
-
-
-
         super.onResume();
     }
 
@@ -123,36 +113,6 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
    //     mSensorManager.unregisterListener(this, mStepCounterSensor);
     }
 
-
-
-
-    public void onSensorChanged(SensorEvent event) {
-//        Sensor sensor = event.sensor;
-//        // values[0]: Acceleration minus Gx on the x-axis , 1 --> y, 2--> z
-//        float[] values = event.values;
-//       // int value = -1;
-//
-//        if (values.length > 0) {
-//          //  value = (int) values[0];
-//            if (sensor.getType() == Sensor.TYPE_STEP_COUNTER) {
-//                pasSupp++;
-//                control.execute("UPDATE profil SET Stock='" + pasSupp + "' WHERE UserName='" + LoginActivity.pseudo + "';", ControleurBdd.BASE.INTERNE);
-//                miseAJour();
-//            }
-//        }
-
-
-        //Enregistre le nombre de pas dans la bdd interne tous les 10pas
-        //   if(nbTot%10==0)
-
-    }
-
-
-
-   public static void UpdatePas (int pas){
-//        nbPas=pas;
-//        pasSupp=0;
-    }
 
     public void onSaveInstanceState(Bundle savedInstanceState) {
 //        savedInstanceState.putInt(NOMBRE_PAS,nbPas);
@@ -322,12 +282,33 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
                 finish();
             }
         });
+    }
 
-        // Relatif au comptage des pas
-//        mSensorManager = (SensorManager)
-//                getSystemService(Context.SENSOR_SERVICE);
-//        mStepCounterSensor = mSensorManager
-//                .getDefaultSensor(Sensor.TYPE_STEP_COUNTER);
+    public void NotificationsChallenge (int i){
+
+        if (i==1){
+            Notification notification = new Notification.Builder(this)
+                    .setContentTitle("MarcheAuxRabais")
+                    .setContentText(pseudo.getText())
+                    .setSmallIcon( R.mipmap.caddie)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setAutoCancel(true).build();
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+            notificationManager.notify(i, notification);
+        }
+
+        else if (i==2){
+            Notification notification = new Notification.Builder(this)
+                    .setContentTitle("MarcheAuxRabais")
+                    .setContentText(pseudo.getText())
+                    .setSmallIcon( R.mipmap.balance)
+                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+                    .setAutoCancel(true).build();
+            notification.flags |= Notification.FLAG_AUTO_CANCEL;
+            notificationManager.notify(i, notification);
+        }
+
+
 
     }
 
@@ -335,14 +316,6 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
     public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
 
     }
-
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Obligatoire quand SensorEventListener est implémenté
-    }
-
-
 
     @Override
     public void onBackPressed(){
@@ -357,19 +330,6 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
 
                 int datapassed = arg1.getIntExtra("DATAPASSED", 0);
                 miseAJour(datapassed);
-
-//                int hello = arg1.getIntExtra("CHOCOLAT",0);
-//
-//            if (hello!=0)
-//            {
-//                Toast.makeText(EcranPrincipal.this,
-//                        "Triggered by Service!\n"
-//                                + "Data passed: " + String.valueOf(hello),
-//                        Toast.LENGTH_SHORT).show();
-//            }
-
-
-
         }
 
     }
@@ -382,13 +342,12 @@ public class EcranPrincipal extends  AppCompatActivity implements SensorEventLis
 
                 int hello = arg1.getIntExtra("CHOCOLAT",0);
 
-            if (hello!=0)
-            {
+                NotificationsChallenge(hello);
                 Toast.makeText(EcranPrincipal.this,
                         "Triggered by Service!\n"
                                 + "Data passed: " + String.valueOf(hello),
                         Toast.LENGTH_SHORT).show();
-            }
+
 
 
 

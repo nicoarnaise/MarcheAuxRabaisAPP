@@ -41,8 +41,7 @@ public class ServicePas extends Service implements SensorEventListener {
     protected int previousValue=0;
     protected int iThread=0;
 
-
-
+    protected int nbRabaisInitial;
 
     @Override
     public IBinder onBind(Intent arg0) {
@@ -59,6 +58,11 @@ public class ServicePas extends Service implements SensorEventListener {
         mSensorManager.registerListener(this, mStepCounterSensor,SensorManager.SENSOR_DELAY_FASTEST);
 
         control = ControleurBdd.getInstance(this);
+
+        MyThreadVerification myThreadVerification= new MyThreadVerification();
+        myThreadVerification.start();
+
+
 
         // Synchronisation de la table profil des BDD interne et externe
         control.syncProfil();
@@ -83,6 +87,11 @@ public class ServicePas extends Service implements SensorEventListener {
       return super.onStartCommand(intent, flags, startId);
     }
 
+    public void onDestroy(){
+        Toast.makeText(this, "Service Destroyed", Toast.LENGTH_SHORT).show();
+        super.onDestroy();
+    }
+
     @Override
     public void onSensorChanged(SensorEvent event) {
 
@@ -90,7 +99,6 @@ public class ServicePas extends Service implements SensorEventListener {
             previousValue  = (int) event.values[0];
 
         pasSupp=(int)event.values[0]-previousValue;
-        Log.i("Yollo",""+pasSupp);
 
         control.execute("UPDATE profil SET Stock='" + pasSupp + "' WHERE UserName='" + LoginActivity.pseudo + "';", ControleurBdd.BASE.INTERNE);
 
@@ -102,6 +110,7 @@ public class ServicePas extends Service implements SensorEventListener {
         if (iThread==10){
             MyThread myThread = new MyThread();
             myThread.start();
+            iThread=0;
         }
 
         iThread++;
@@ -120,11 +129,23 @@ public class ServicePas extends Service implements SensorEventListener {
         @Override
         public void run() {
             // TODO Auto-generated method stub
+
             Intent intent3 = new Intent();
             intent3.setAction(MY_PONEY);
-            intent3.putExtra("CHOCOLAT", -99);
+            intent3.putExtra("CHOCOLAT", nbRabaisInitial);
             sendBroadcast(intent3);
-            iThread=0;
+            stopSelf();
+        }
+
+    }
+
+    public class MyThreadVerification extends Thread{
+
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            ArrayList<HashMap<String, String>> tab = control.selection("SELECT COUNT(Utilisateur) FROM histachat WHERE Utilisateur="+LoginActivity.IDuser+";",ControleurBdd.BASE.EXTERNE);
+            nbRabaisInitial=Integer.parseInt(tab.get(0).get("COUNT(Utilisateur)"));
             stopSelf();
         }
 
