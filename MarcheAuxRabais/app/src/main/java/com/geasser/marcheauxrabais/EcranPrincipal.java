@@ -81,42 +81,45 @@ public class EcranPrincipal extends  AppCompatActivity implements GoogleApiClien
                 @Override
                 public void run() {
                     Context mContext = getApplicationContext();
-                    int nbTotalPas = Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT SUM(Pas) FROM historique WHERE Utilisateur=" + LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE).get(0).get("SUM(Pas)"));
-                    int nbTotalKm = (int) (nbTotalPas * 0.75 / 1000);
-                    int nbTotalCalorie = (int) (nbTotalPas * 0.5);
-                    int nbTotalRabais = Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM histachat WHERE Utilisateur=" + LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)"));
-
                     if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=1", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
                         ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",1)", ControleurBdd.BASE.EXTERNE);
 
-                    if (nbTotalKm >= 1) {
-                        if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=2", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
-                            ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",2)", ControleurBdd.BASE.EXTERNE);
-                    }
+                    String nbTotalPasString = ControleurBdd.getInstance(mContext).selection("SELECT SUM(Pas) FROM historique WHERE Utilisateur=" + LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE).get(0).get("SUM(Pas)");
+                    if(!nbTotalPasString.equals("null")) {
+                        int nbTotalPas = Integer.parseInt(nbTotalPasString);
+                        int nbTotalKm = (int) (nbTotalPas * 0.75 / 1000);
+                        int nbTotalCalorie = (int) (nbTotalPas * 0.5);
+                        int nbTotalRabais = Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM histachat WHERE Utilisateur=" + LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)"));
 
-                    if (nbTotalKm >= 10) {
-                        if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=3", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
-                            ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",3)", ControleurBdd.BASE.EXTERNE);
-                    }
+                        if (nbTotalKm >= 1) {
+                            if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=2", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
+                                ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",2)", ControleurBdd.BASE.EXTERNE);
+                        }
 
-                    if (nbTotalKm >= 100) {
-                        if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=4", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
-                            ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",4)", ControleurBdd.BASE.EXTERNE);
-                    }
+                        if (nbTotalKm >= 10) {
+                            if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=3", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
+                                ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",3)", ControleurBdd.BASE.EXTERNE);
+                        }
 
-                    if (nbTotalRabais >= 1) {
-                        if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=5", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
-                            ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",5)", ControleurBdd.BASE.EXTERNE);
-                    }
+                        if (nbTotalKm >= 100) {
+                            if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=4", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
+                                ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",4)", ControleurBdd.BASE.EXTERNE);
+                        }
 
-                    if (nbTotalRabais >= 50) {
-                        if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=6", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
-                            ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",6)", ControleurBdd.BASE.EXTERNE);
-                    }
+                        if (nbTotalRabais >= 1) {
+                            if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=5", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
+                                ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",5)", ControleurBdd.BASE.EXTERNE);
+                        }
 
-                    if (nbTotalCalorie >= 100) {
-                        if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=7", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
-                            ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",7)", ControleurBdd.BASE.EXTERNE);
+                        if (nbTotalRabais >= 50) {
+                            if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=6", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
+                                ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",6)", ControleurBdd.BASE.EXTERNE);
+                        }
+
+                        if (nbTotalCalorie >= 100) {
+                            if (Integer.parseInt(ControleurBdd.getInstance(mContext).selection("SELECT COUNT(*) FROM succesprofil WHERE IDProfil=" + LoginActivity.IDuser + " AND IDSucces=7", ControleurBdd.BASE.EXTERNE).get(0).get("COUNT(*)")) == 0)
+                                ControleurBdd.getInstance(mContext).execute("INSERT INTO succesprofil (IDProfil,IDSucces) VALUES (" + LoginActivity.IDuser + ",7)", ControleurBdd.BASE.EXTERNE);
+                        }
                     }
                 }
             }).start();
@@ -281,32 +284,8 @@ public class EcranPrincipal extends  AppCompatActivity implements GoogleApiClien
         });
     }
 
-    public void NotificationsChallenge (int i){
-
-        if (i==1){
-            Notification notification = new Notification.Builder(this)
-                    .setContentTitle("MarcheAuxRabais")
-                    .setContentText(pseudo.getText())
-                    .setSmallIcon( R.mipmap.caddie)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setAutoCancel(true).build();
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            notificationManager.notify(i, notification);
-        }
-
-        else if (i==2){
-            Notification notification = new Notification.Builder(this)
-                    .setContentTitle("MarcheAuxRabais")
-                    .setContentText(pseudo.getText())
-                    .setSmallIcon( R.mipmap.balance)
-                    .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-                    .setAutoCancel(true).build();
-            notification.flags |= Notification.FLAG_AUTO_CANCEL;
-            notificationManager.notify(i, notification);
-        }
-
-
-
+    @Override
+    public void onBackPressed() {
     }
 
     @Override
@@ -329,12 +308,6 @@ public class EcranPrincipal extends  AppCompatActivity implements GoogleApiClien
         public void onReceive(Context arg0, Intent arg1) {
             // TODO Auto-generated method stub
                 int hello = arg1.getIntExtra("CHOCOLAT",0);
-
-//                NotificationsChallenge(hello);
-//                Toast.makeText(EcranPrincipal.this,
-//                        "Triggered by Service!\n"
-//                                + "Data passed: " + String.valueOf(hello),
-//                        Toast.LENGTH_SHORT).show();
 
         }
 

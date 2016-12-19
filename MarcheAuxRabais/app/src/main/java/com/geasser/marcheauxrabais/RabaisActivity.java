@@ -87,7 +87,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                 verifAchat=true;
                 activable=false;
             }
-            dispo = (Integer.parseInt(map.get("Cout"))<pas+stock) && verifAchat;
+            dispo = (Integer.parseInt(map.get("Cout"))<=pas+stock) && verifAchat;
             listR.add(new Rabais(Integer.parseInt(map.get("ID")),map.get("Image"),map.get("Nom"),Integer.parseInt(map.get("Cout")),map.get("Description"),dispo, activable,map.get("entreprise")));
         }
         return listR;

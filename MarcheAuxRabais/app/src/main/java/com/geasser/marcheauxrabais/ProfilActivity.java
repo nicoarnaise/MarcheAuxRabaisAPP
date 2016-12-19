@@ -70,7 +70,11 @@ public class ProfilActivity extends AppCompatActivity {
         // Profil Activity parametrage
 
         pseudo = (TextView) findViewById(R.id.pseudo);
-        pseudo.setText(LoginActivity.pseudo);
+        // Détermine si l'utilisateur est connecté avec Facebook ou Google
+        if (LoginActivity.NameAPI!= null)
+            pseudo.setText(LoginActivity.NameAPI );
+        else
+            pseudo.setText(LoginActivity.pseudo);
         pseudo.setTypeface(Typeface.DEFAULT_BOLD);
         pseudo.setTextColor(Color.BLUE);
 
@@ -90,7 +94,7 @@ public class ProfilActivity extends AppCompatActivity {
 
         // Affichage de la progression dans le niveau
         TextView exp = (TextView) findViewById(R.id.exp);
-        exp.setText(Exp + "/500");
+        exp.setText(Exp + "/"+Math.max(500,Exp));
         exp.setTypeface(Typeface.DEFAULT_BOLD);
 
         // Creation de la progressBar
@@ -112,6 +116,12 @@ public class ProfilActivity extends AppCompatActivity {
         TextView calories = (TextView) findViewById(R.id.calories);
 
         Integer tot = 0;
+        if(ControleurBdd.isOnline()) {
+            String nbTotalPasString = ControleurBdd.getInstance(this).selection("SELECT SUM(Pas) FROM historique WHERE Utilisateur=" + LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE).get(0).get("SUM(Pas)");
+            if (!nbTotalPasString.equals("null")) {
+                tot = Integer.parseInt(nbTotalPasString);
+            }
+        }
         Integer Tot = tot + Pas;
         Double dist = Tot * 0.75;
         Double calorie = Tot * 0.5;
