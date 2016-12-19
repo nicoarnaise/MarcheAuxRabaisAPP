@@ -45,6 +45,7 @@
             android:label="@string/app_name" />
         <activity
             android:name=".EcranPrincipal"
+            android:screenOrientation="portrait"
             android:launchMode="singleTop" />
         <activity android:name=".ListeEntreprises" />
         <!--

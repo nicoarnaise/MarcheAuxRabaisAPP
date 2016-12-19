@@ -1,13 +1,19 @@
 package com.geasser.marcheauxrabais;
 
+import android.app.Application;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.hardware.camera2.TotalCaptureResult;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
+import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.concurrent.ExecutionException;
 
@@ -48,6 +54,21 @@ public class ControleurBdd {
         externe = new BddExt();
         interne = BddInt.getInstance(contexte);
         this.contexte = contexte;
+    }
+
+    public static boolean isOnline() {
+
+        Runtime runtime = Runtime.getRuntime();
+        try {
+
+            Process ipProcess = runtime.exec("/system/bin/ping -c 1 8.8.8.8");
+            int     exitValue = ipProcess.waitFor();
+            return (exitValue == 0);
+
+        } catch (IOException e)          { e.printStackTrace(); }
+        catch (InterruptedException e) { e.printStackTrace(); }
+
+        return false;
     }
 
     /**
@@ -189,31 +210,41 @@ public class ControleurBdd {
             AsyncTask<String, Void, String> task = new BddExt().execute("SELECT * FROM profil WHERE "+id);
             ArrayList<HashMap<String,String>> profilOnline = BddExt.formate(task.get(),contexte);
             if(profilOffline != null){
-                    Integer pas = Integer.parseInt(profilOnline.get(0).get("Pas"))+Integer.parseInt(profilOffline.get(0).get("Stock"));
-                    profilOnline.get(0).remove("Pas");
-                    profilOffline.get(0).remove("Pas");
-                    profilOnline.get(0).put("Pas",pas.toString());
-                    profilOffline.get(0).put("Pas",pas.toString());
-                    pas = Integer.parseInt(profilOnline.get(0).get("Exp"))+Integer.parseInt(profilOffline.get(0).get("Stock"));
-                    profilOnline.get(0).remove("Exp");
-                    profilOnline.get(0).put("Exp",pas.toString());
-                    profilOffline.get(0).remove("Stock");
-                    profilOffline.get(0).put("Stock","0");
+                Integer pas = Integer.parseInt(profilOnline.get(0).get("Pas"))+Integer.parseInt(profilOffline.get(0).get("Stock"));
+                profilOnline.get(0).remove("Pas");
+                profilOffline.get(0).remove("Pas");
+                profilOnline.get(0).put("Pas",pas.toString());
+                profilOffline.get(0).put("Pas",pas.toString());
+                int stock = Integer.parseInt(profilOffline.get(0).get("Stock"));
+                pas = Integer.parseInt(profilOnline.get(0).get("Exp"))+stock;
+                profilOnline.get(0).remove("Exp");
+                profilOnline.get(0).put("Exp",pas.toString());
+                profilOffline.get(0).remove("Stock");
+                profilOffline.get(0).put("Stock","0");
 
-                    // update base externe
-                    for(String key : profilOnline.get(0).keySet()) {
-                        execute("UPDATE profil" +
-                                " SET " + key + " = '" + profilOnline.get(0).get(key) +
-                                "' WHERE ID = " + profilOnline.get(0).get("ID"),BASE.EXTERNE);
-                    }
-                    // update base interne
-                    for(String key : profilOffline.get(0).keySet()) {
-                        execute("UPDATE profil" +
-                                " SET " + key + " = '" + profilOffline.get(0).get(key) +
-                                "' WHERE ID = " + profilOffline.get(0).get("ID"),BASE.INTERNE);
-                    }
-
-                    //TODO recalculer le niveau
+                // update base externe
+                for(String key : profilOnline.get(0).keySet()) {
+                    execute("UPDATE profil" +
+                            " SET " + key + " = '" + profilOnline.get(0).get(key) +
+                            "' WHERE ID = " + profilOnline.get(0).get("ID"),BASE.EXTERNE);
+                }
+                // update base interne
+                for(String key : profilOffline.get(0).keySet()) {
+                    execute("UPDATE profil" +
+                            " SET " + key + " = '" + profilOffline.get(0).get(key) +
+                            "' WHERE ID = " + profilOffline.get(0).get("ID"),BASE.INTERNE);
+                }
+                // update de l'historique
+                long ts = new Date().getTime()/1000; // on divise le ts par 1000 car le unixtime est un timestemp en secondes au lieu d'un timestamp en milisecondes.
+                if(Integer.parseInt(selection("SELECT COUNT(Pas) c FROM historique WHERE Utilisateur="+LoginActivity.IDuser+" AND Date=DATE_FORMAT(FROM_UNIXTIME("+ts+"), \'%Y-%m-%d\')",BASE.EXTERNE).get(0).get("c"))>0){
+                    HashMap<String,String> ligne = selection("SELECT ID, Pas FROM historique WHERE Utilisateur="+LoginActivity.IDuser+" AND Date=DATE_FORMAT(FROM_UNIXTIME("+ts+"), \'%Y-%m-%d\')",BASE.EXTERNE).get(0);
+                    int pasHistorique = Integer.parseInt(ligne.get("Pas"));
+                    pasHistorique+=stock;
+                    execute("UPDATE historique SET Pas="+pasHistorique+" WHERE ID=5",BASE.EXTERNE);
+                }else{
+                    execute("INSERT INTO historique (Utilisateur,Pas,Date) VALUES ("+LoginActivity.IDuser+","+stock+",FROM_UNIXTIME("+ts+"))",BASE.EXTERNE);
+                }
+                //TODO recalculer le niveau
             }else{
                 execute("INSERT INTO profil (ID,UserName,MotDePasse,Lvl,Exp,Pas) VALUES ("+profilOnline.get(0).get("ID")+",'"+profilOnline.get(0).get("UserName")+"','"+profilOnline.get(0).get("MotDePasse")+"',"+profilOnline.get(0).get("Lvl")+","+profilOnline.get(0).get("Exp")+","+profilOnline.get(0).get("Pas")+")",BASE.INTERNE);
             }

@@ -70,8 +70,10 @@ public class RabaisAdapter extends BaseAdapter implements Serializable{
         tv_Titre.setText(mListR.get(position).titre);
         tv_Activation.setText("Activer le rabais");
         tv_Activation.setAlpha(mListR.get(position).active?1f:0.1f);
+        if(mListR.get(position).active)
+            tv_Activation.setBackgroundResource(R.drawable.myprogressbar);
         tv_Prix.setText(""+mListR.get(position).prix);
-        tv_Description.setText(mListR.get(position).description);
+        tv_Description.setText(mListR.get(position).description+"\nValable chez "+mListR.get(position).entreprise);
         iv_Image.setImageURI(Uri.parse("android.resource://"+mListR.get(position).image));
         iv_Caddie.setAlpha(mListR.get(position).disponible?1f:0.1f);
 

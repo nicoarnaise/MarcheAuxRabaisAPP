@@ -4,7 +4,6 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import static android.os.FileObserver.CREATE;
 
 /**
  * Created by Nicolas on 02/11/2016.

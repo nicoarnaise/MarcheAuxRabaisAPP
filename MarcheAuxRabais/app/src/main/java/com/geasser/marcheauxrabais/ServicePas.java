@@ -1,24 +1,15 @@
 package com.geasser.marcheauxrabais;
 
-import android.app.IntentService;
-import android.app.Notification;
-import android.app.PendingIntent;
+
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.IBinder;
-import android.os.PowerManager;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -59,15 +50,19 @@ public class ServicePas extends Service implements SensorEventListener {
 
         control = ControleurBdd.getInstance(this);
 
-        MyThreadVerification myThreadVerification= new MyThreadVerification();
-        myThreadVerification.start();
+//        MyThreadVerification myThreadVerification= new MyThreadVerification();
+//        myThreadVerification.start();
 
+        if(ControleurBdd.isOnline()) {
+            // Synchronisation de la table profil des BDD interne et externe
+            control.syncProfil();
+            // On remet pasSupp à 0 car la synchronisation a été faite.
+            pasSupp = 0;
+        }else{
 
-
-        // Synchronisation de la table profil des BDD interne et externe
-        control.syncProfil();
-        // On remet pasSupp à 0 car la synchronisation a été faite.
-        pasSupp=0;
+            pasSupp = Integer.parseInt(control.selection("SELECT Stock FROM profil WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.INTERNE).get(0).get("Stock"));
+            nbPas = Integer.parseInt(control.selection("SELECT Pas FROM profil WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.INTERNE).get(0).get("Pas"));
+        }
         ArrayList<HashMap<String, String>> tab = control.selection("SELECT Pas FROM profil WHERE UserName='"+LoginActivity.pseudo+"';",ControleurBdd.BASE.INTERNE);
 
         if(tab!=null)
@@ -88,15 +83,25 @@ public class ServicePas extends Service implements SensorEventListener {
     }
 
     public void onDestroy(){
-        Toast.makeText(this, "Service Destroyed", Toast.LENGTH_SHORT).show();
         super.onDestroy();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if (previousValue==0)
-            previousValue  = (int) event.values[0];
+        int pasVerifBdd = Integer.parseInt(control.selection("SELECT Pas FROM profil WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.INTERNE).get(0).get("Pas"));
+
+        if(pasVerifBdd != nbPas){
+            previousValue = 0;
+            pasSupp=0;
+            nbPas = Integer.parseInt(control.selection("SELECT Pas FROM profil WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.INTERNE).get(0).get("Pas"));
+        }
+
+        if (previousValue==0 && pasSupp==0) {
+            previousValue = (int) event.values[0];
+        }else if(previousValue==0 && pasSupp!=0){
+            previousValue = (int) event.values[0]-pasSupp;
+        }
 
         pasSupp=(int)event.values[0]-previousValue;
 
@@ -138,17 +143,17 @@ public class ServicePas extends Service implements SensorEventListener {
         }
 
     }
-
-    public class MyThreadVerification extends Thread{
-
-        @Override
-        public void run() {
-            // TODO Auto-generated method stub
-            ArrayList<HashMap<String, String>> tab = control.selection("SELECT COUNT(Utilisateur) FROM histachat WHERE Utilisateur="+LoginActivity.IDuser+";",ControleurBdd.BASE.EXTERNE);
-            nbRabaisInitial=Integer.parseInt(tab.get(0).get("COUNT(Utilisateur)"));
-            stopSelf();
-        }
-
-    }
+//
+//    public class MyThreadVerification extends Thread{
+//
+//        @Override
+//        public void run() {
+//            // TODO Auto-generated method stub
+//            ArrayList<HashMap<String, String>> tab = control.selection("SELECT COUNT(Utilisateur) FROM histachat WHERE Utilisateur="+LoginActivity.IDuser+";",ControleurBdd.BASE.EXTERNE);
+//            nbRabaisInitial=Integer.parseInt(tab.get(0).get("COUNT(Utilisateur)"));
+//            stopSelf();
+//        }
+//
+//    }
 
 }

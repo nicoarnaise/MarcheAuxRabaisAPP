@@ -9,22 +9,33 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 
-public class ChallengeAdapter extends BaseAdapter {
+public class ChallengeAdapter extends BaseAdapter implements Serializable {
 
     private Context mContext;
     private LayoutInflater mInflater;
     private  ArrayList<HashMap<String,String>> mDataSource;
+
+    private int nbTotalPas;
+    private int nbTotalRabais;
+    private int nbTotalCalorie;
+    private int nbTotalKm;
     ArrayList<HashMap<String,String>> tab;
+
+
     public ChallengeAdapter(Context context,  ArrayList<HashMap<String,String>> items) {
         mContext = context;
         mDataSource = items;
         mInflater = (LayoutInflater) mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        String IDProfil = String.valueOf(LoginActivity.IDuser);
+//      String IDProfil = String.valueOf(LoginActivity.IDuser);
+
+
         tab = ControleurBdd.getInstance(mContext).selection("SELECT IDSucces FROM succesprofil WHERE IDProfil="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE);
     }
 
@@ -67,14 +78,14 @@ public class ChallengeAdapter extends BaseAdapter {
         thumbnailImageView.setImageURI(Uri.parse("android.resource://"+mDataSource.get(position).get("Image")));
 
         int i =0;
-//        while (i<tab.size()) {
-//            if (tab.get(i).get("IDSucces").compareTo(String.valueOf(position+1)) == 0) {
-//                rowView.setBackgroundColor(Color.parseColor("#4066FFCC"));
-//                i=-1;
-//                break;
-//            }
-//            i++;
-//        }
+        while (i<tab.size()) {
+            if (tab.get(i).get("IDSucces").compareTo(String.valueOf(position+1)) == 0) {
+                rowView.setBackgroundColor(Color.parseColor("#4066FFCC"));
+                i=-1;
+                break;
+            }
+            i++;
+        }
 
         if(i!=-1)
             rowView.setAlpha(0.3f);

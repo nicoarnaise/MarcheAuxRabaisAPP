@@ -32,14 +32,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:id="@+id/activation"
-                android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingBottom="5dp"
-                android:paddingTop="5dp"
+                android:gravity="center_vertical|center_horizontal"
                 android:elevation="0dp"
                 android:clickable="true"
-                android:contextClickable="true" />
+                android:contextClickable="true"
+                android:fontFamily="sans-serif"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="5dp"
+                android:textStyle="normal|bold"
+                android:textSize="12sp" />
 
 
             <TextView
@@ -48,8 +49,8 @@
                 android:layout_height="match_parent"
                 android:id="@+id/titreRabais"
                 android:gravity="center_vertical"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
                 android:layout_weight="2" />
 
 

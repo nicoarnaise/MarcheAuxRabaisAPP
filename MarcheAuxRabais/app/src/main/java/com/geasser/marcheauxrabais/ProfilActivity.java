@@ -6,12 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
-import android.view.View;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
-import android.widget.TabHost;
-import android.widget.TabWidget;
 import android.widget.TextView;
 
 import com.github.mikephil.charting.charts.BarChart;
@@ -27,16 +22,6 @@ import com.google.android.gms.appindexing.AppIndex;
 import com.google.android.gms.appindexing.Thing;
 import com.google.android.gms.common.api.GoogleApiClient;
 
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -134,7 +119,7 @@ public class ProfilActivity extends AppCompatActivity {
         pastot.setTypeface(Typeface.DEFAULT_BOLD);
         distance.setText((dist/1000) + " km");
         distance.setTypeface(Typeface.DEFAULT_BOLD);
-        calories.setText((calorie/1000) + " kcal");
+        calories.setText((calorie) + " kcal");
         calories.setTypeface(Typeface.DEFAULT_BOLD);
 
         // statistique graphe parametrage
@@ -194,48 +179,51 @@ public class ProfilActivity extends AppCompatActivity {
             Niveau = Integer.parseInt(niv.get(0).get("Lvl"));
 
             // Affichage de la progression dans le niveau
-            ArrayList<HashMap<String, String>> exp = control.selection("SELECT Exp FROM profil WHERE ID = " + LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE);
+            ArrayList<HashMap<String, String>> exp = control.selection("SELECT Exp FROM profil WHERE ID = " + LoginActivity.IDuser, ControleurBdd.BASE.INTERNE);
             Exp = Integer.parseInt(exp.get(0).get("Exp"));
 
-            // statistique graphe parametrage
-            ArrayList<HashMap<String, String>> historique = ControleurBdd.getInstance(this).selection("SELECT Date,Pas FROM historique WHERE Utilisateur=" + LoginActivity.IDuser + " ORDER BY DATE", ControleurBdd.BASE.EXTERNE);
-            if (historique != null) {
-                ArrayList<Pas> pasData = new ArrayList<>();
-                Date jour = null;
-                for (HashMap<String, String> ligne : historique) {
-                    try {
-                        if (jour != null) {
-                            for (int i = 1; i < DateUtil.daysBetween(jour, formatbdd.parse(ligne.get("Date"))); i++) {
-                                pasData.add(new Pas(0, pasData.size()));
+            if(ControleurBdd.isOnline()) {
+                // statistique graphe parametrage
+                ArrayList<HashMap<String, String>> historique = ControleurBdd.getInstance(this).selection("SELECT Date,Pas FROM historique WHERE Utilisateur=" + LoginActivity.IDuser + " ORDER BY DATE", ControleurBdd.BASE.EXTERNE);
+                if (historique != null) {
+                    ArrayList<Pas> pasData = new ArrayList<>();
+                    Date jour = null;
+                    for (HashMap<String, String> ligne : historique) {
+                        try {
+                            if (jour != null) {
+                                for (int i = 1; i < DateUtil.daysBetween(jour, formatbdd.parse(ligne.get("Date"))); i++) {
+                                    pasData.add(new Pas(0, pasData.size()));
+                                }
                             }
+                            jour = formatbdd.parse(ligne.get("Date"));
+                            if (historique.get(0) == ligne) {
+                                premierJour = jour;
+                            }
+                            pasData.add(new Pas(Integer.parseInt(ligne.get("Pas")), DateUtil.daysBetween(premierJour, jour)));
+                        } catch (ParseException e) {
+                            e.printStackTrace();
                         }
-                        jour = formatbdd.parse(ligne.get("Date"));
-                        if (historique.get(0) == ligne) {
-                            premierJour = jour;
-                        }
-                        pasData.add(new Pas(Integer.parseInt(ligne.get("Pas")), DateUtil.daysBetween(premierJour, jour)));
-                    } catch (ParseException e) {
-                        e.printStackTrace();
                     }
+
+                    Pas[] dataObjects = {};
+                    dataObjects = pasData.toArray(dataObjects);
+
+                    List<BarEntry> entries = new ArrayList<BarEntry>();
+
+                    for (Pas data : dataObjects) {
+                        // turn your data into Entry objects
+                        entries.add(new BarEntry(data.getValueX(), data.getValueY()));
+                    }
+
+                    BarDataSet dataSet = new BarDataSet(entries, "Pas"); // add entries to dataset
+                    dataSet.setColor(Color.rgb(33, 180, 115));
+                    dataSet.setValueTextColor(Color.BLUE);
+                    dataSet.setValueTextSize(10);
+
+                    lineData = new MyBarData(dataSet);
+                } else {
+                    lineData = null;
                 }
-
-                Pas[] dataObjects = {};
-                dataObjects = pasData.toArray(dataObjects);
-
-                List<BarEntry> entries = new ArrayList<BarEntry>();
-
-                for (Pas data : dataObjects) {
-                    // turn your data into Entry objects
-                    entries.add(new BarEntry(data.getValueX(), data.getValueY()));
-                }
-
-                BarDataSet dataSet = new BarDataSet(entries, "Pas"); // add entries to dataset
-                dataSet.setColor(Color.rgb(33, 180, 115));
-                dataSet.setValueTextColor(Color.BLUE);
-                //dataSet.setValueTypeface(Typeface.create(Typeface.DEFAULT,Typeface.BOLD));
-                dataSet.setValueTextSize(10);
-
-                lineData = new MyBarData(dataSet);
             } else {
                 lineData = null;
             }

@@ -1,12 +1,9 @@
 package com.geasser.marcheauxrabais;
 
-import android.app.NotificationManager;
-import android.content.Context;
-import android.content.Intent;
+
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -65,7 +62,9 @@ public class MapsActivity extends FragmentActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_maps);
-        ControleurBdd.getInstance(this).syncEntreprise();
+        if(ControleurBdd.isOnline()){
+            ControleurBdd.getInstance(this).syncEntreprise();
+        }
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         createLocationRequest();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -88,10 +87,6 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        // LatLng(Latitude,Longitude)
-        //LatLng chicoutimi = new LatLng(48.4222, -71.0619);
-        // Ajoute un marqueur rouge sur la carte à la latitude et la longitude de Chicoutimi
-       // mMap.addMarker(new MarkerOptions().position(chicoutimi).title("Marker in Chicoutimi").icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)));
         getMaker();
 
         // Obligatoire d'avoir l'autorisation de l'utilisateur pour la localisation.
@@ -208,7 +203,6 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onLocationChanged(Location location) {
         mCurrentLocation = location;
-        // Attention ...
         mLastUpdateTime=java.text.DateFormat.getTimeInstance().format(new Date());
         updateUI();
     }
@@ -284,7 +278,6 @@ public class MapsActivity extends FragmentActivity implements
         // On affiche simplement le texte retourné.
         int i =0;
             while (i<tab.size()){
-            //  info.setText(tab.get(i).get("MotDePasse").toString() + " " + password);
             LatLng coordo = new LatLng(Double.parseDouble(tab.get(i).get("Latitude")),Double.parseDouble(tab.get(i).get("Longitude")));
             String nomEntreprise = tab.get(i).get("Nom");
             list.put(nomEntreprise,coordo);
@@ -310,7 +303,6 @@ public class MapsActivity extends FragmentActivity implements
     }
     public void onDestroy(){
 
-        Toast.makeText(getApplicationContext(),"OnDestroy",Toast.LENGTH_LONG).show();
         EcranPrincipal.notificationManager.cancelAll();
         super.onDestroy();
 

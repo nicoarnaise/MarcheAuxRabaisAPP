@@ -1,26 +1,20 @@
 package com.geasser.marcheauxrabais;
 
 import android.content.Intent;
-import android.graphics.Rect;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
+
 
 public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.RabaisAdapterListener {
 
-    protected HashMap<Integer,Rabais> listActive = new HashMap<Integer, Rabais>();
     protected ListView list;
     protected Rabais item;
     protected TextView selected;
@@ -32,27 +26,44 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
         super.onCreate(savedInstanceState);
         setTitle("Mes Rabais");
         setContentView(R.layout.activity_rabais);
-        if(savedInstanceState==null) {
-            ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
-            control.syncEntreprise();
-            control.syncRabais();
+            if (savedInstanceState == null) {
+                ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
+                if(ControleurBdd.isOnline()) {
+                    control.syncEntreprise();
+                    control.syncRabais();
+                    ControleurBdd.getInstance(this).syncRabaisProfil();
+                }
+                listR = toRabais(ControleurBdd.getInstance(this).selection("SELECT r.ID, s.Image, r.Nom, r.Cout, r.Description, e.Nom entreprise FROM rabais r, secteurs s, entreprises e WHERE s.ID=r.Secteur AND e.ID=r.Entreprise", ControleurBdd.BASE.INTERNE));
+                //Création et initialisation de l'Adapter pour les rabais
+            } else {
+                listR = (ArrayList<Rabais>) savedInstanceState.get("LISTR");
+            }
+            RabaisAdapter adapter = new RabaisAdapter(this, listR);
 
-            ControleurBdd.getInstance(this).syncRabaisProfil();
-            listR = toRabais(ControleurBdd.getInstance(this).selection("SELECT r.ID, s.Image, r.Nom, r.Cout, r.Description FROM rabais r, secteurs s WHERE s.ID=r.Secteur", ControleurBdd.BASE.INTERNE));
-            //Création et initialisation de l'Adapter pour les rabais
-        }else{
-            listR = (ArrayList<Rabais>) savedInstanceState.get("LISTR");
+            //Ecoute des évènements sur votre liste
+            adapter.addListener(this);
+
+            //Récupération du composant ListView
+            list = (ListView) findViewById(R.id.ListView01);
+
+            //Initialisation de la liste avec les données
+            list.setAdapter(adapter);
+    }
+
+    @Override
+    public void onResume(){
+        if(ControleurBdd.isOnline()) {
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
+                    control.syncEntreprise();
+                    control.syncRabais();
+                    ControleurBdd.getInstance(getApplicationContext()).syncRabaisProfil();
+                }
+            }).start();
         }
-        RabaisAdapter adapter = new RabaisAdapter(this, listR);
-
-        //Ecoute des évènements sur votre liste
-        adapter.addListener(this);
-
-        //Récupération du composant ListView
-        list = (ListView)findViewById(R.id.ListView01);
-
-        //Initialisation de la liste avec les données
-        list.setAdapter(adapter);
+        super.onResume();
     }
 
     public void onSaveInstanceState(Bundle savedInstanceState) {
@@ -77,7 +88,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                 activable=false;
             }
             dispo = (Integer.parseInt(map.get("Cout"))<pas+stock) && verifAchat;
-            listR.add(new Rabais(Integer.parseInt(map.get("ID")),map.get("Image"),map.get("Nom"),Integer.parseInt(map.get("Cout")),map.get("Description"),dispo, activable));
+            listR.add(new Rabais(Integer.parseInt(map.get("ID")),map.get("Image"),map.get("Nom"),Integer.parseInt(map.get("Cout")),map.get("Description"),dispo, activable,map.get("entreprise")));
         }
         return listR;
     }
@@ -93,12 +104,13 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
     }
 
     public void onClickAchat(Rabais sel, final int position) {
-        item = sel;
-        final ImageView selected = (ImageView)list.findViewWithTag(position).findViewById(R.id.imageAchat);
-        Toast.makeText(this,"Achat en cours ...",Toast.LENGTH_SHORT).show();
-        list.setEnabled(false);
-        if(selected.getAlpha() == 1 && listR.get(position).disponible){
-            new Thread(new Runnable() {
+        if(ControleurBdd.isOnline()) {
+            item = sel;
+            final ImageView selected = (ImageView)list.findViewWithTag(position).findViewById(R.id.imageAchat);
+            Toast.makeText(this,"Achat en cours ...",Toast.LENGTH_SHORT).show();
+            list.setEnabled(false);
+            if(selected.getAlpha() == 1 && listR.get(position).disponible){
+                new Thread(new Runnable() {
                 public void run() {
                     ControleurBdd control = ControleurBdd.getInstance(getApplicationContext());
                     control.syncProfil();
@@ -106,6 +118,13 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                     int pas = Integer.parseInt(map.get("Pas"));
                     pas -= item.prix;
                     control.execute("UPDATE profil SET Pas="+pas+" WHERE ID="+LoginActivity.IDuser, ControleurBdd.BASE.EXTERNE);
+
+                    //---- maj affichage ecran principal ----
+                    Intent intent1 = new Intent();
+                    intent1.setAction("MY_ACTION");
+                    intent1.putExtra("DATAPASSED", pas);
+                    sendBroadcast(intent1);
+                    //--------------------------------------
 
                     //mise à jour de la table histachat
                     long date = new Date().getTime();
@@ -130,18 +149,22 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                     }
                     control.syncProfil();
                     control.syncRabaisProfil();
-                }
-            }).start();
-            listR.get(position).disponible = false;
-            selected.setAlpha(0.1f);
-            listR.get(position).active = true;
-            list.findViewWithTag(position).findViewById(R.id.activation).setAlpha(1f);
-            Toast.makeText(this,item.titre+" acheté !",Toast.LENGTH_SHORT).show();
-            list.setEnabled(true);
-        //    EcranPrincipal.UpdatePas(pas);
+                        }
+                }).start();
+                listR.get(position).disponible = false;
+                selected.setAlpha(0.1f);
+                listR.get(position).active = true;
+                list.findViewWithTag(position).findViewById(R.id.activation).setAlpha(1f);
+                list.findViewWithTag(position).findViewById(R.id.activation).setBackgroundResource(R.drawable.myprogressbar);
+                Toast.makeText(this,item.titre+" acheté !",Toast.LENGTH_SHORT).show();
+                list.setEnabled(true);
+            }else {
+                list.setEnabled(true);
+                Toast.makeText(this, "Ce rabais n\'est pas disponible !", Toast.LENGTH_SHORT).show();
+            }
         }else{
-            list.setEnabled(true);
-            Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
+            Toast.makeText(this,"Vous devez être connecté à internet pour utiliser cette fonctionnalité",Toast.LENGTH_LONG).show();
+            finish();
         }
     }
 
@@ -160,7 +183,9 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                         Intent intent = new Intent(getApplicationContext(),RabaisActive.class);
                         intent.putExtra("ID",item.ID);
                         startActivity(intent);
-                        control.syncRabaisProfil();
+                        if(ControleurBdd.isOnline()){
+                            control.syncRabaisProfil();
+                        }
                     } catch (Exception e) {
                         Toast.makeText(getApplicationContext(), "Erreur d'activation", Toast.LENGTH_SHORT).show();
                     }
@@ -172,6 +197,7 @@ public class RabaisActivity extends AppCompatActivity implements RabaisAdapter.R
                 list.findViewWithTag(position).findViewById(R.id.imageAchat).setAlpha(1f);
             }
             selected.setAlpha(0.1f);
+            selected.setBackground(null);
         }else{
             Toast.makeText(this,"Ce rabais n\'est pas disponible !",Toast.LENGTH_SHORT).show();
         }

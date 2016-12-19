@@ -9,12 +9,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.concurrent.ExecutionException;
-
-import static com.geasser.marcheauxrabais.R.id.textView;
-
 public class RegisterActivity extends AppCompatActivity {
 
 
@@ -32,17 +26,20 @@ public class RegisterActivity extends AppCompatActivity {
         bRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final String username = etUsername.getText().toString();
-                final String password = etPassword.getText().toString();
-                final String passwordConfirm = etPasswordConfirm.getText().toString();
+                if(ControleurBdd.isOnline()) {
+                    final String username = etUsername.getText().toString();
+                    final String password = etPassword.getText().toString();
+                    final String passwordConfirm = etPasswordConfirm.getText().toString();
 
-                if(tailleValideUsername(username) && tailleValidePassword(password) && confirmerPassword(password, passwordConfirm)) {
-                    AsyncTask<String, Void, String> task = new BddExt().execute
-                            ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+username+"','"+password+"');");
-                    Intent registerIntent = new Intent(RegisterActivity.this, LoginActivity.class);
-                    RegisterActivity.this.startActivity(registerIntent);
+                    if (tailleValideUsername(username) && tailleValidePassword(password) && confirmerPassword(password, passwordConfirm)) {
+                        AsyncTask<String, Void, String> task = new BddExt().execute
+                                ("INSERT INTO profil (UserName,MotDePasse) VALUES ('" + username + "','" + password + "');");
+                        Intent registerIntent = new Intent(RegisterActivity.this, LoginActivity.class);
+                        RegisterActivity.this.startActivity(registerIntent);
+                    }
+                }else{
+                    Toast.makeText(getApplicationContext(),"Connectez-vous à internet pour créer votre compte",Toast.LENGTH_LONG).show();
                 }
-
             }
         });
 

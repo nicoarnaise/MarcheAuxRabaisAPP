@@ -51,120 +51,134 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle("Connexion");
+//        if(ControleurBdd.isOnline()) {
+            FacebookSdk.sdkInitialize(getApplicationContext());
+            callbackManager = CallbackManager.Factory.create();
+            AppEventsLogger.activateApp(this);
+            setContentView(R.layout.activity_login);
 
-        FacebookSdk.sdkInitialize(getApplicationContext());
-        callbackManager = CallbackManager.Factory.create();
-        AppEventsLogger.activateApp(this);
-        setContentView(R.layout.activity_login);
 
+            final EditText etUsername = (EditText) findViewById(R.id.etLoginUsername);
+            final EditText etPassword = (EditText) findViewById(R.id.etPasswordlogin);
+            final Button bLogin = (Button) findViewById(R.id.bLogin);
+            final Button bRegisterHere = (Button) findViewById(R.id.bRegister);
+            final TextView registerLink = (TextView) findViewById(R.id.tvRegisterHere);
+            findViewById(R.id.sign_in_button).setOnClickListener(this);
+            loginButton = (LoginButton) findViewById(R.id.login_button);
 
-        final EditText etUsername = (EditText) findViewById(R.id.etLoginUsername);
-        final EditText etPassword = (EditText) findViewById(R.id.etPasswordlogin);
-        final Button bLogin = (Button) findViewById(R.id.bLogin);
-        final Button bRegisterHere = (Button) findViewById(R.id.bRegister);
-        final TextView registerLink = (TextView) findViewById(R.id.tvRegisterHere);
-        findViewById(R.id.sign_in_button).setOnClickListener(this);
-     //   findViewById(R.id.bSignOut).setOnClickListener(this);
-     //   info = (TextView) findViewById(R.id.info);
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-
-        // Si l'utilisateur est déjà connecté avec Facebook alors l'envoie à l'ecran principal.
-        if ( AccessToken.getCurrentAccessToken()!=null){
-            pseudo = AccessToken.getCurrentAccessToken().getUserId();
-            if( Profile.getCurrentProfile()!=null)
-                NameAPI = Profile.getCurrentProfile().getName();
-            else
-                NameAPI="Error";
-          //  NameAPI = Profile.getCurrentProfile().getName();
-            IDuser=Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT ID FROM profil WHERE UserName='"+pseudo+"'", ControleurBdd.BASE.INTERNE).get(0).get("ID"));
-            Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
-            LoginActivity.this.startActivity(registerIntent);
-        }
-
-        registerLink.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
+            // Si l'utilisateur est déjà connecté avec Facebook alors l'envoie à l'ecran principal.
+            if (AccessToken.getCurrentAccessToken() != null) {
+                pseudo = AccessToken.getCurrentAccessToken().getUserId();
+                if (Profile.getCurrentProfile() != null)
+                    NameAPI = Profile.getCurrentProfile().getName();
+                else
+                    NameAPI = "Error";
+                IDuser = Integer.parseInt(ControleurBdd.getInstance(this).selection("SELECT ID FROM profil WHERE UserName='" + pseudo + "'", ControleurBdd.BASE.INTERNE).get(0).get("ID"));
+                Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
                 LoginActivity.this.startActivity(registerIntent);
             }
-        });
 
-        bLogin.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                pseudo = etUsername.getText().toString();
-                final String password = etPassword.getText().toString();
-
-                if(testProfil(pseudo,password)){
-                    NameAPI = null;
-                    Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
+            registerLink.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent registerIntent = new Intent(LoginActivity.this, RegisterActivity.class);
                     LoginActivity.this.startActivity(registerIntent);
                 }
-                else{
-                    Toast.makeText(LoginActivity.this,"Pseudo ou mot de passe erroné",Toast.LENGTH_LONG).show();
+            });
+
+            bLogin.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!ControleurBdd.isOnline()){
+                        pseudo = etUsername.getText().toString();
+                        final String password = etPassword.getText().toString();
+
+                        if (testProfil(pseudo, password,0)) {
+                            NameAPI = null;
+                            Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
+                            LoginActivity.this.startActivity(registerIntent);
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Pseudo ou mot de passe erroné", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                    else {
+                        pseudo = etUsername.getText().toString();
+                        final String password = etPassword.getText().toString();
+
+                        if (testProfil(pseudo, password,1)) {
+                            NameAPI = null;
+                            Intent registerIntent = new Intent(LoginActivity.this, EcranPrincipal.class);
+                            LoginActivity.this.startActivity(registerIntent);
+                        } else {
+                            Toast.makeText(LoginActivity.this, "Pseudo ou mot de passe erroné", Toast.LENGTH_LONG).show();
+                        }
+                    }
                 }
-            }
-        });
+            });
 
 
-        etPassword.setOnKeyListener(new View.OnKeyListener() {
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                // If the event is a key-down event on the "enter" button
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    // Perform action on key press
-                    bLogin.performClick();
-                    return true;
+            etPassword.setOnKeyListener(new View.OnKeyListener() {
+                public boolean onKey(View v, int keyCode, KeyEvent event) {
+                    // If the event is a key-down event on the "enter" button
+                    if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                            (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                        // Perform action on key press
+                        bLogin.performClick();
+                        return true;
+                    }
+                    return false;
                 }
-                return false;
-            }
-        });
+            });
 
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(LoginResult loginResult) {
-                loginButton.setVisibility(View.INVISIBLE);
-                if( Profile.getCurrentProfile()!=null)
-                     NameAPI = Profile.getCurrentProfile().getName();
-                else
-                    NameAPI="Error";
+            loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(LoginResult loginResult) {
+                    loginButton.setVisibility(View.INVISIBLE);
+                    if (Profile.getCurrentProfile() != null)
+                        NameAPI = Profile.getCurrentProfile().getName();
+                    else
+                        NameAPI = "Error";
 
-                // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal
-                if (testProfil(loginResult.getAccessToken().getUserId(),"null")){
-                    pseudo = AccessToken.getCurrentAccessToken().getUserId();
-                    Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
-                    LoginActivity.this.startActivity(profil);
-                    // Sinon créer l'ID (username) dans la BDD externe et go to écran principal.
-                }else{
-                    AsyncTask<String, Void, String> task = new BddExt().execute
-                            ("INSERT INTO profil (UserName,MotDePasse) VALUES ('"+(loginResult.getAccessToken().getUserId()+"','null');"));
+                    // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal
+                    if (testProfil(loginResult.getAccessToken().getUserId(), "null",1)) {
+                        pseudo = AccessToken.getCurrentAccessToken().getUserId();
+                        Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
+                        LoginActivity.this.startActivity(profil);
+                        // Sinon créer l'ID (username) dans la BDD externe et go to écran principal.
+                    } else {
+                        AsyncTask<String, Void, String> task = new BddExt().execute
+                                ("INSERT INTO profil (UserName,MotDePasse) VALUES ('" + (loginResult.getAccessToken().getUserId() + "','null');"));
+                    }
                 }
-            }
 
 
-            @Override
-            public void onCancel() {
-              //  info.setText("Login attempt canceled.");
-            }
+                @Override
+                public void onCancel() {
+                    //  info.setText("Login attempt canceled.");
+                }
 
-            @Override
-            public void onError(FacebookException e) {
-             //   info.setText("Login attempt failed.");
-            }
-        });
+                @Override
+                public void onError(FacebookException e) {
+                    //   info.setText("Login attempt failed.");
+                }
+            });
 
-        // Configure sign-in to request the user's ID, email address, and basic
-        // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestEmail()
-                .build();
+            // Configure sign-in to request the user's ID, email address, and basic
+            // profile. ID and basic profile are included in DEFAULT_SIGN_IN.
+            GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                    .requestEmail()
+                    .build();
 
-        // Build a GoogleApiClient with access to the Google Sign-In API and the
-        // options specified by gso.
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
-                .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
-                .build();
+            // Build a GoogleApiClient with access to the Google Sign-In API and the
+            // options specified by gso.
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .enableAutoManage(this /* FragmentActivity */, this /* OnConnectionFailedListener */)
+                    .addApi(Auth.GOOGLE_SIGN_IN_API, gso)
+                    .build();
+//        }else{
+//            Toast.makeText(this,"Vous devez être connecté à internet pour utiliser cette fonctionnalité",Toast.LENGTH_LONG).show();
+//            finish();
+//        }
     }
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -177,7 +191,7 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             handleSignInResult(result);
 
             // Si l'ID (username) est présent dans la BDD externe, alors go to écran principal.
-            if (testProfil(result.getSignInAccount().getId().toString(),"null")){
+            if (testProfil(result.getSignInAccount().getId().toString(),"null",1)){
                 pseudo=result.getSignInAccount().getId().toString();
                 Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
                 LoginActivity.this.startActivity(profil);
@@ -217,7 +231,6 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
             GoogleSignInAccount acct = result.getSignInAccount();
             String personName = acct.getDisplayName();
             NameAPI=personName;
-           // info.setText(getString(R.string.signed_in_fmt, acct.getDisplayName()));
             updateUI(true);
         } else {
             // Signed out, show unauthenticated UI.
@@ -227,21 +240,24 @@ public class LoginActivity extends AppCompatActivity implements  GoogleApiClient
 
     private void updateUI(boolean signedIn) {
         if (signedIn) {
-          //  findViewById(R.id.sign_in_button).setVisibility(View.GONE);
-         //   findViewById(R.id.bSignOut).setVisibility(View.VISIBLE);
             Intent profil = new Intent(LoginActivity.this, EcranPrincipal.class);
             LoginActivity.this.startActivity(profil);
 
         } else {
-            //info.setText(R.string.signed_out);
             findViewById(R.id.sign_in_button).setVisibility(View.VISIBLE);
-          //  findViewById(R.id.bSignOut).setVisibility(View.GONE);
         }
     }
 
-    public boolean testProfil(String username, String password){
+    public boolean testProfil(String username, String password, int j){
 
-            ArrayList<HashMap<String,String>> tab = ControleurBdd.getInstance(this).selection("SELECT ID, UserName, MotDePasse FROM profil", ControleurBdd.BASE.EXTERNE);
+        ArrayList<HashMap<String,String>> tab;
+            if (j==1){
+                tab = ControleurBdd.getInstance(this).selection("SELECT ID, UserName, MotDePasse FROM profil", ControleurBdd.BASE.EXTERNE);
+            }
+            else {
+                tab = ControleurBdd.getInstance(this).selection("SELECT ID, UserName, MotDePasse FROM profil", ControleurBdd.BASE.INTERNE);
+            }
+
             // On affiche simplement le texte retourné.
             int i =0;
             while (i<tab.size()) {

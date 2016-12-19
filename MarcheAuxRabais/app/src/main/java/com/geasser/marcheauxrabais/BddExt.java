@@ -2,9 +2,6 @@ package com.geasser.marcheauxrabais;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -16,7 +13,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static java.security.AccessController.getContext;
 
 /**
  * Created by Nicolas & Vincent on 27/10/2016.
